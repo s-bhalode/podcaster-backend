@@ -28,11 +28,11 @@ const podcastSchema = mongoose.model(
     },
     duration: {
       type: String,
-      required: true,
+      // required: true,
     },
     file: {
       type: String,
-      required: true,
+      // required: true,
     },
     episode: [
       {
@@ -98,7 +98,7 @@ const podcastComments = mongoose.model(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
     },
-    content: { type: String, required: true },
+    content: { type: String },
     created_at: { type: Date, default: Date.now },
   })
 );
