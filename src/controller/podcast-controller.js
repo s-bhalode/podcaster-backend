@@ -82,13 +82,32 @@ const getAllPodcast = async (req, res) => {
   }
 };
 
+const getPodcastbyCategory = async (req, res) => {
+  const category = req.params.category;
+  const podcastId = req.params.id;
+  try {
+    const podcastCategories = await Podcast.podcastSchema.findOne({
+      category: category,
+    });
+    if (!podcastCategories) {
+      return res
+        .status(404)
+        .json({ error: 'Podcast not found with its Category' });
+    }
+    res.status(200).json(podcastCategories);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 const updatePodcastById = async (req, res) => {
   const { title, description, duration, user, image, bgms, file, category } =
     req.body;
   const userId = user;
   const podcastId = req.params.id;
   const podcast = await Podcast.podcastSchema
-    .findById(podcastId) 
+    .findById(podcastId)
     .populate('user');
   if (!podcast) {
     return res.status(404).json({ message: 'Podcast not found' });
@@ -119,19 +138,20 @@ const updatePodcastById = async (req, res) => {
   }
 };
 
-const pushCommentsIntoPodcastbyId = async (req,res)=>{
-  const {content ,user} = req.body;
+const pushCommentsIntoPodcastbyId = async (req, res) => {
+  console.log(req.body);
+
+  const { content, user } = req.body;
   const podcastId = req.params.id;
 
-  try{
-
+  try {
     const newComment = new Podcast.podcastComments({
       user,
       content,
     });
 
     const savedComment = await newComment.save();
-    const podcast = await Podcast.findById(podcastId);
+    const podcast = await Podcast.podcastSchema.findById(podcastId);
     if (!podcast) {
       return res.status(404).json({ message: 'Podcast not found' });
     }
@@ -143,8 +163,71 @@ const pushCommentsIntoPodcastbyId = async (req,res)=>{
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
   }
+};
 
-}
+const pushLikesIntoPodcastbyId = async (req, res) => {
+  console.log(req.body);
+  const { user } = req.body;
+  const podcastId = req.params.id;
+
+  try {
+    const newLikes = new Podcast.podcastLikes({
+      user,
+    });
+
+    const savedLikes = await newLikes.save();
+    const podcast = await Podcast.podcastSchema.findById(podcastId);
+    if (!podcast) {
+      return res.status(404).json({ message: 'Podcast not found' });
+    }
+    podcast.likes.push(savedLikes._id);
+    const pushedLikes = await podcast.save();
+    res.status(200).json(pushedLikes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const createEpisodes = async (req, res) => {
+  const { title, description, audioFile, duration } = req.body;
+  const podcastId = req.params.id;
+  const userId = req.body.user;
+  try {
+    const newEpisode = new Podcast.episodeSchema({
+      title,
+      description,
+      audioFile,
+      duration,
+    });
+    const savedEpisode = await newEpisode.save();
+    const updatedPodcast = await podcast.save();
+    res.status(200).json(updatedPodcast);
+    const podcast = await Podcast.podcastSchema.findByIdAndDelete(podcastId);
+    if (!podcast) {
+      return res.status(404).json({ message: 'Podcast not found' });
+    }
+
+    podcast.episode.push(savedEpisode);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const getUserPodcastData = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const podcasts = await Podcast.podcastSchema.findOne({ user: userId });
+    if (!podcasts) {
+      res.status(404).json({ message: 'Podcast not find' });
+    }
+    res.status(200).json(podcasts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 module.exports = {
   getPodcastById,
@@ -152,4 +235,8 @@ module.exports = {
   getAllPodcast,
   updatePodcastById,
   pushCommentsIntoPodcastbyId,
+  createEpisodes,
+  pushLikesIntoPodcastbyId,
+  getPodcastbyCategory,
+  getUserPodcastData,
 };
