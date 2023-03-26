@@ -5,6 +5,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const userRouter = require('./src/routes/user-routes');
 const podcastRouter = require('./src/routes/podcast-routes');
+const homerouter = require('./src/routes/home-routes')
 const chatRoomRouter = require('./src/routes/chat-room-routes');
 const ACTIONS = require('./src/action');
 dotenv.config({path: './.env'});
@@ -40,6 +41,7 @@ userRouter.use(cookieParser());
 app.use(userRouter);
 app.use(podcastRouter);
 app.use(chatRoomRouter);
+app.use(homerouter);
 
 
 // Sockets
