@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = mongoose.model(
-  'user',
+  "user",
   new mongoose.Schema({
     user_name: {
       type: String,
@@ -31,5 +31,31 @@ const userSchema = mongoose.model(
   })
 );
 
-module.exports = userSchema
+const userActivitySchema = mongoose.model(
+  "userActivity",
+  new mongoose.Schema({
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: "true",
+    },
+    activityType: {
+      type: String,
+      required: true,
+    },
+    podcastId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "podcasts",
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now,
+      required: true,
+    },
+  })
+);
 
+module.exports = {
+  userSchema,
+  userActivitySchema,
+};

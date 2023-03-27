@@ -10,12 +10,12 @@ const signUp = async (req, res) => {
     //     return res.status(400).json({message : "User email and password are required"});
     // }
 
-    const user = await userSchema.findOne({user_email});
+    const user = await userSchema.userSchema.findOne({user_email});
     if(user){
         return res.status(400).json({message: "User already exists"})
     }
 
-    const newUser = await userSchema({user_name, user_email, user_password, user_role});
+    const newUser = await userSchema.userSchema({user_name, user_email, user_password, user_role});
     bcrypt.hash(user_password, 7, async (err, hash) => {
         if(err){
             return res.status(400).json({message : "Error while saving password"});
@@ -31,7 +31,7 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
     const {user_email, user_password} = req.body;
 
-    const user = await userSchema.findOne({user_email});
+    const user = await userSchema.userSchema.findOne({user_email});
     if(!user){
         return res.status(400).json({message: "User not found"});
     }
