@@ -17,6 +17,10 @@ router.get('/api/user/:id',userController.getUserbyId);
 //update particular user
 router.put('/api/user/:id',userController.updateUserbyId)
 
+// get user activity
+router.get('/api/user-activity/:id', userController.getUserActivity);
 
+// add user activity
+router.post('/api/add-user-activity/:id', userController.addUserActivity);
 
 module.exports = router;
