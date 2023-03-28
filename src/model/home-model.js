@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const postSchema = mongoose.model(
   'posts',
   new mongoose.Schema({
-    user: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
     },
@@ -45,7 +45,7 @@ const postSchema = mongoose.model(
 const postLikes = mongoose.model(
   'post-likes',
   new mongoose.Schema({
-    user: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
     },
@@ -54,7 +54,7 @@ const postLikes = mongoose.model(
 const postComments = mongoose.model(
   'post-comments',
   new mongoose.Schema({
-    user: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
     },

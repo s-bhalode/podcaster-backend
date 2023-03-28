@@ -9,7 +9,7 @@ const podcastSchema = mongoose.model(
     description: {
       type: String,
     },
-    user: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
     },
@@ -85,7 +85,7 @@ const episodeSchema = mongoose.model(
 const podcastLikes = mongoose.model(
   'podcast-likes',
   new mongoose.Schema({
-    user: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
     },
@@ -94,7 +94,7 @@ const podcastLikes = mongoose.model(
 const podcastComments = mongoose.model(
   'podcast-comments',
   new mongoose.Schema({
-    user: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
     },
