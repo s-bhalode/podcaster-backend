@@ -82,6 +82,7 @@ const pushCommentsIntoPostById = async (req, res) => {
   console.log(req.body);
   const { content, userId, postId } = req.params;
   const user_id = userId;
+  const post_id = postId;
   const activity_type = 'post-comment';
   try {
     const newComment = new home.postComments({
@@ -91,7 +92,7 @@ const pushCommentsIntoPostById = async (req, res) => {
     await userSchema.userActivitySchema.create({
       user_id,
       activity_type,
-      postId
+      post_id
     })
     const savedComment = await newComment.save();
     const post = await home.postSchema.findById(postId);
@@ -113,6 +114,7 @@ const pushLikesIntoPostById = async (req, res) => {
   console.log(req.body);
   const { userId, postId} = req.params;
   const user_id = userId;
+  const post_id = postId;
   const activity_type = 'liked-post';
   try {
     const newLikes = new home.postLikes({
@@ -129,7 +131,7 @@ const pushLikesIntoPostById = async (req, res) => {
       await userSchema.userActivitySchema.create({
         user_id,
         activity_type,
-        postId
+        post_id
       })
       return res.status(200).json(pushedLikes);
     }

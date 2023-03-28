@@ -45,9 +45,41 @@ const getUserActivity = async (req, res) => {
   try{
     const {userId, activityType} = req.params;
     
-    const userActivity = await userSchema.userActivitySchema.find({activity_type: {$in: [activityType, userId]}}).populate('podcast_id').sort({timestamp: 'desc'}).exec();
+    if(activityType === 'my-podcasts'){
+      const userActivity = await userSchema.userActivitySchema.find({activity_type: {$in: [activityType, userId]}}).populate('podcast_id').sort({timestamp: 'desc'}).exec();
+      return res.status(200).json(userActivity);
+    }
+    if(activityType === 'liked-podcast'){
+      const userActivity = await userSchema.userActivitySchema.find({activity_type: {$in: [activityType, userId]}}).populate('podcast_like_id').sort({timestamp: 'desc'}).exec();
+      return res.status(200).json(userActivity);
+    }
+    if(activityType === 'podcast-comment'){
+      const userActivity = await userSchema.userActivitySchema.find({activity_type: {$in: [activityType, userId]}}).populate('podcast_comment_id').sort({timestamp: 'desc'}).exec();
+      return res.status(200).json(userActivity);
+    }
+    if(activityType === 'my-post'){
+      const userActivity = await userSchema.userActivitySchema.find({activity_type: {$in: [activityType, userId]}}).populate('posts_id').sort({timestamp: 'desc'}).exec();
+      return res.status(200).json(userActivity);
+    }
+    if(activityType === 'liked-post'){
+      const userActivity = await userSchema.userActivitySchema.find({activity_type: {$in: [activityType, userId]}}).populate('post_like_id').sort({timestamp: 'desc'}).exec();
+      return res.status(200).json(userActivity);
+    }
+    if(activityType === 'post-comment'){
+      const userActivity = await userSchema.userActivitySchema.find({activity_type: {$in: [activityType, userId]}}).populate('post_comment_id').sort({timestamp: 'desc'}).exec();
+      return res.status(200).json(userActivity);
+    }
+    if(activityType === 'episode'){
+      const userActivity = await userSchema.userActivitySchema.find({activity_type: {$in: [activityType, userId]}})
+        .populate('podcast_id')
+        .populate('episode_id')
+        .sort({timestamp: 'desc'}).exec();
 
-    return res.status(200).json(userActivity);
+      return res.status(200).json(userActivity);
+    }
+
+    return res.status(400).json("Invalid activity type");
+
   }catch(err){
     console.log(err);
     return res.status(400).json({message : 'Error while retrieving user activity'});

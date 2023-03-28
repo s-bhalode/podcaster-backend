@@ -33,7 +33,5 @@ router.get('/api/user/:userId/podcast',podcastController.getUserPodcastData)
 // to get all the required authors
 router.get('/api/get-all-authors', podcastController.getAllPodcastAuthors);
 
-// to get all podcast according to catergory
-router.post('/api/get-all-podcast', podcastController.getAllPodcastAccordingToCategory);
 
 module.exports = router;
