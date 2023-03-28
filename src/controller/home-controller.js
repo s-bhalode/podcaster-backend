@@ -2,17 +2,19 @@ const userSchema = require('../model/user-model');
 const home = require('../model/home-model');
 
 const createPost = async (req, res) => {
-  const { description, user, images, is_Public, bgms, created_at } = req.body;
+  const { description, images, is_Public, bgms, created_at } = req.body;
+  const {userId} = req.params;
+  const user_id = userId;
   try {
     const newPost = await home.postSchema.create({
       description,
-      user,
+      user_id,
       images,
       is_Public,
       bgms,
       created_at,
     });
-    res.status(200).json(newPost);
+    return res.status(200).json(newPost);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
@@ -20,22 +22,24 @@ const createPost = async (req, res) => {
 };
 
 const getPostById = async (req, res) => {
-  const postId = req.params.id;
+  const {postId} = req.params;
   try {
     const post = await home.postSchema
       .findById(postId)
-      .populate('user')
+      .populate('user_id')
       .populate('likes')
       .populate({
         path: 'comments',
         populate: {
-          path: 'user',
+          path: 'user_id',
         },
       });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
+    }else{
+      return res.status(200).json(post);
     }
-    res.status(200).json(post);
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
@@ -46,18 +50,20 @@ const getAllPost = async (req, res) => {
   try {
     const post = await home.postSchema
       .find()
-      .populate('user')
+      .populate('user_id')
       .populate('likes')
       .populate({
         path: 'comments',
         populate: {
-          path: 'user',
+          path: 'user_id',
         },
       });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
+    }else{
+      return res.status(200).json(post);
     }
-    res.status(200).json(post);
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
@@ -66,12 +72,11 @@ const getAllPost = async (req, res) => {
 
 const pushCommentsIntoPostById = async (req, res) => {
   console.log(req.body);
-  const { content, user } = req.body;
-  const postId = req.params.id;
-
+  const { content, userId, postId } = req.params;
+  const user_id = userId;
   try {
     const newComment = new home.postComments({
-      user,
+      user_id,
       content,
     });
 
@@ -79,10 +84,12 @@ const pushCommentsIntoPostById = async (req, res) => {
     const post = await home.postSchema.findById(postId);
     if (!post) {
       return res.status(404).json({ message: 'post not found' });
+    }else{
+      post.comments.push(savedComment._id); 
+      const updatedpost = await post.save();
+      return res.status(200).json(updatedpost);
     }
-    post.comments.push(savedComment._id); 
-    const updatedpost = await post.save();
-    res.status(200).json(updatedpost);
+   
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
@@ -91,22 +98,23 @@ const pushCommentsIntoPostById = async (req, res) => {
 
 const pushLikesIntoPostById = async (req, res) => {
   console.log(req.body);
-  const { user } = req.body;
-  const postId = req.params.id;
-
+  const { userId, postId} = req.params;
+  const user_id = userId;
   try {
     const newLikes = new home.postLikes({
-      user,
+      user_id,
     });
 
     const savedLikes = await newLikes.save();
     const post = await home.postSchema.findById(postId);
     if (!post) {
       return res.status(404).json({ message: 'post not found' });
+    }else{
+      post.likes.push(savedLikes._id);
+      const pushedLikes = await post.save();
+      return res.status(200).json(pushedLikes);
     }
-    post.likes.push(savedLikes._id);
-    const pushedLikes = await post.save();
-    res.status(200).json(pushedLikes);
+   
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
@@ -114,13 +122,15 @@ const pushLikesIntoPostById = async (req, res) => {
 };
 
 const getUserPostData = async (req, res) => {
-  const userId = req.params.id;
+  const {userId} = req.params;
   try {
     const post = await home.postSchema.findOne({ user: userId });
     if (!post) {
       res.status(404).json({ message: 'Post not found' });
+    }else{
+      return res.status(200).json(post);
     }
-    res.status(200).json(post);
+    
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Internal server error' });
@@ -128,10 +138,10 @@ const getUserPostData = async (req, res) => {
 };
 
 const updatePostById = async (req, res) => {
-  const { description, user, images, is_Public, bgms} = req.body;
-  const userId = user;
-  const postId = req.params.id;
-  const post = await home.postSchema.findById(postId).populate('user');
+  const { description, images, is_Public, bgms} = req.body;
+  const {userId, postId} = req.params;
+  const user_id =userId;
+  const post = await home.postSchema.findById(postId).populate('user_id');
   if (!post) {
     return res.status(404).json({ message: 'post not found' });
   } else if (post.user._id.toString() !== userId) {
@@ -144,14 +154,14 @@ const updatePostById = async (req, res) => {
         postId,
         {
           description,
-          user,
+          user_id,
           images,
           is_Public,
           bgms,
         },
         { new: true }
       );
-      res.status(200).json(updatedpost);
+      return res.status(200).json(updatedpost);
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: 'Internal server error' });
