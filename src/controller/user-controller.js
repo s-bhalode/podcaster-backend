@@ -37,8 +37,8 @@ const updateUserbyId = async (req, res) => {
 
 const getUserActivity = async (req, res) => {
   try{
-    const {id} = req.params;
-    const userActivity = await userSchema.userActivitySchema.find({id}).sort({timestamp: 'desc'});
+    const {userId} = req.params;
+    const userActivity = await userSchema.userActivitySchema.find({userId}).sort({timestamp: 'desc'});
 
     return res.status(200).json(userActivity);
 
@@ -50,12 +50,10 @@ const getUserActivity = async (req, res) => {
 
 const addUserActivity = async (req, res) => {
   try{
-    const {id} = req.params;
+    const {userId} = req.params;
 
-    // activityType can be one of 'listen', 'review', 'comment', 'likes'
-
-    const {activityType, podcastId} = req.body;
-    const userActivity = new userSchema.userActivitySchema({id, activityType, podcastId});
+    const {activity_type, podcast_id} = req.body;
+    const userActivity = new userSchema.userActivitySchema({userId, activity_type, podcast_id});
     await userActivity.save();
 
     return res.status(201).json({message: 'User activity created successfully'});
@@ -65,6 +63,7 @@ const addUserActivity = async (req, res) => {
     return res.status(400).json({message: 'Error while creating user activity'});
   }
 }
+
 
 module.exports = {
   getallUsers,

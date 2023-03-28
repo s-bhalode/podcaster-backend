@@ -12,7 +12,7 @@ const createPodcast = async (req, res) => {
     file,
     category,
     created_at,
-  } = req.body;
+} = req.body;
   try {
     //creating a podcast (this function is same for all the user)
     const newPodcast = await Podcast.podcastSchema.create({
@@ -26,6 +26,9 @@ const createPodcast = async (req, res) => {
       category,
       created_at,
     });
+    const podcast_id = newPodcast._id;
+    const activity_type = 'my-podcasts';
+
     res.status(200).json(newPodcast);
   } catch (err) {
     console.error(err);
