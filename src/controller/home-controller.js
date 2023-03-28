@@ -1,10 +1,12 @@
 const userSchema = require('../model/user-model');
 const home = require('../model/home-model');
+const podcastModel = require('../model/podcast-model');
 
 const createPost = async (req, res) => {
   const { description, images, is_Public, bgms, created_at } = req.body;
   const {userId} = req.params;
   const user_id = userId;
+  const activity_type = 'my-posts';
   try {
     const newPost = await home.postSchema.create({
       description,
@@ -14,6 +16,12 @@ const createPost = async (req, res) => {
       bgms,
       created_at,
     });
+    const post_id = newPost._id;
+    await userSchema.userActivitySchema.create({
+      user_id,
+      activity_type,
+      post_id
+    })
     return res.status(200).json(newPost);
   } catch (err) {
     console.error(err);
@@ -74,12 +82,17 @@ const pushCommentsIntoPostById = async (req, res) => {
   console.log(req.body);
   const { content, userId, postId } = req.params;
   const user_id = userId;
+  const activity_type = 'post-comment';
   try {
     const newComment = new home.postComments({
       user_id,
       content,
     });
-
+    await userSchema.userActivitySchema.create({
+      user_id,
+      activity_type,
+      postId
+    })
     const savedComment = await newComment.save();
     const post = await home.postSchema.findById(postId);
     if (!post) {
@@ -90,7 +103,7 @@ const pushCommentsIntoPostById = async (req, res) => {
       return res.status(200).json(updatedpost);
     }
    
-  } catch (err) {
+  }catch (err){
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -100,11 +113,12 @@ const pushLikesIntoPostById = async (req, res) => {
   console.log(req.body);
   const { userId, postId} = req.params;
   const user_id = userId;
+  const activity_type = 'liked-post';
   try {
     const newLikes = new home.postLikes({
       user_id,
     });
-
+    
     const savedLikes = await newLikes.save();
     const post = await home.postSchema.findById(postId);
     if (!post) {
@@ -112,6 +126,11 @@ const pushLikesIntoPostById = async (req, res) => {
     }else{
       post.likes.push(savedLikes._id);
       const pushedLikes = await post.save();
+      await userSchema.userActivitySchema.create({
+        user_id,
+        activity_type,
+        postId
+      })
       return res.status(200).json(pushedLikes);
     }
    
@@ -176,5 +195,5 @@ module.exports = {
   pushCommentsIntoPostById,
   pushLikesIntoPostById,
   getUserPostData,
-  updatePostById,
+  updatePostById
 };

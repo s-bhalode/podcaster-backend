@@ -23,4 +23,5 @@ router.post('/api/post/like/:postId/:userId',homeController.pushLikesIntoPostByI
 // getting the particular user post data 
 router.get('/api/user/posts/:userId',homeController.getUserPostData)
 
+
 module.exports = router; 
