@@ -36,6 +36,7 @@ const createPodcast = async (req, res) => {
 
 const getPodcastById = async (req, res) => {
   const { podcastId } = req.params;
+  
   try {
     // Find the podcast by ID
     const podcast = await Podcast.podcastSchema
@@ -144,6 +145,7 @@ const updatePodcastById = async (req, res) => {
 const pushCommentsIntoPodcastbyId = async (req, res) => {
   const { userId, podcastId } = req.params;
   const user_id = userId;
+  const podcast_id = podcastId;
   const { content } = req.body;
   const activity_type = 'podcast-comment';
 
@@ -155,7 +157,7 @@ const pushCommentsIntoPodcastbyId = async (req, res) => {
     await userSchema.userActivitySchema.create({
       user_id,
       activity_type,
-      podcastId
+      podcast_id
     })
     const savedComment = await newComment.save();
     const podcast = await Podcast.podcastSchema.findById(podcastId);
@@ -175,6 +177,7 @@ const pushCommentsIntoPodcastbyId = async (req, res) => {
 const pushLikesIntoPodcastbyId = async (req, res) => {
   console.log(req.body);
   const { userId, podcastId } = req.params;
+  const podcast_id = podcastId;
   const user_id = userId;
   const activity_type = 'liked-podcast';
 
@@ -185,7 +188,7 @@ const pushLikesIntoPodcastbyId = async (req, res) => {
     await userSchema.userActivitySchema.create({
       user_id,
       activity_type,
-      podcastId
+      podcast_id
     })
 
     const savedLikes = await newLikes.save();
@@ -207,6 +210,9 @@ const createEpisodes = async (req, res) => {
   const { title, description, audioFile, duration } = req.body;
   console.log(req.params);
   const { podcastId, userId } = req.params;
+  const user_id = userId;
+  const podcast_id = podcastId;
+  const activity_type = 'episode';
   try {
     const newEpisode = new Podcast.episodeSchema({
       title,
@@ -214,6 +220,7 @@ const createEpisodes = async (req, res) => {
       audioFile,
       duration,
     });
+    const episode_id = newEpisode._id;
     const savedEpisode = await newEpisode.save();
 
     const podcast = await Podcast.podcastSchema.findById(podcastId);
@@ -221,6 +228,12 @@ const createEpisodes = async (req, res) => {
       return res.status(404).json({ message: 'Podcast not found' });
     } else {
       podcast.episode.push(savedEpisode);
+      await userSchema.userActivitySchema.create({
+        user_id,
+        activity_type,
+        podcast_id,
+        episode_id
+      })
       
       const updatedPodcast = await podcast.save();
       return res.status(200).json(updatedPodcast);
@@ -259,20 +272,6 @@ const getAllPodcastAuthors = async (req, res) => {
     return res.status(400).json("Error while retrieving authors!");
   }
 }
-const getAllPodcastAccordingToCategory = async (req, res) => {
-  try{
-    const {category} = req.body;
-    const podcast = await Podcast.podcastSchema.find({category: {$in: [category]}}).populate('user_id').sort({timestamp: 'desc'}).exec();
-    
-    if(!podcast){
-      return res.status(500).json("Internal server error");
-    }
-    return res.status(202).json(podcast);
-  }catch(err){
-    console.log(err);
-    return res.status(400).json("Error while retrieving podcasts!");
-  }
-}
 
 module.exports = {
   getPodcastById,
@@ -284,6 +283,5 @@ module.exports = {
   pushLikesIntoPodcastbyId,
   getPodcastbyCategory,
   getUserPodcastData,
-  getAllPodcastAuthors,
-  getAllPodcastAccordingToCategory
+  getAllPodcastAuthors
 };
