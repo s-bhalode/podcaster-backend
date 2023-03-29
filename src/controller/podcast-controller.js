@@ -89,7 +89,7 @@ const getAllPodcast = async (req, res) => {
 const getPodcastbyCategory = async (req, res) => {
   const { category } = req.params;
   try {
-    const podcastCategories = await Podcast.podcastSchema.findOne({
+    const podcastCategories = await Podcast.podcastSchema.find({
       category: category,
     });
     if (!podcastCategories) {
