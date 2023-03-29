@@ -258,7 +258,18 @@ const getEpisodeById = async (req, res) => {
     return res.status(400).json("Error while getting episode data");
   }
 }
-
+const getRecentEpisodes = async (req, res) => {
+  try{
+    const episode = await Podcast.episodeSchema.find().limit(20).sort({created_at: 'desc'}).exec();
+    if(!episode){
+      return res.status(404).json("Episodes not found");
+    }
+    return res.status(200).json(episode);
+  }catch(err){
+    console.log(err);
+    return res.status(400).json("Error while getting episode data");
+  }
+}
 const getUserPodcastData = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -299,5 +310,6 @@ module.exports = {
   getPodcastbyCategory,
   getUserPodcastData,
   getAllPodcastAuthors,
-  getEpisodeById
+  getEpisodeById,
+  getRecentEpisodes
 };

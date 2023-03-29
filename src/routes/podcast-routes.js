@@ -36,4 +36,7 @@ router.get('/api/get-all-authors', podcastController.getAllPodcastAuthors);
 // to get episode by id
 router.get('/api/get-episode/:episodeId', podcastController.getEpisodeById);
 
+// to get 20 recent episodes 
+router.get('/api/get-twenty-recent-episode', podcastController.getRecentEpisodes);
+
 module.exports = router;
