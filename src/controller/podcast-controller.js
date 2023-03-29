@@ -244,6 +244,21 @@ const createEpisodes = async (req, res) => {
   }
 };
 
+const getEpisodeById = async (req, res) => {
+  try{
+    const {episodeId} = req.params;
+    const episode = await Podcast.episodeSchema.findOne({_id : episodeId});
+    if(!episode){
+      return res.status(404).json("Episode not found");
+    }
+    return res.status(200).json(episode);
+
+  }catch(err){
+    console.log(err);
+    return res.status(400).json("Error while getting episode data");
+  }
+}
+
 const getUserPodcastData = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -283,5 +298,6 @@ module.exports = {
   pushLikesIntoPodcastbyId,
   getPodcastbyCategory,
   getUserPodcastData,
-  getAllPodcastAuthors
+  getAllPodcastAuthors,
+  getEpisodeById
 };

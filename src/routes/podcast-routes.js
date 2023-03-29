@@ -33,5 +33,7 @@ router.get('/api/user/:userId/podcast',podcastController.getUserPodcastData)
 // to get all the required authors
 router.get('/api/get-all-authors', podcastController.getAllPodcastAuthors);
 
+// to get episode by id
+router.get('/api/get-episode/:episodeId', podcastController.getEpisodeById);
 
 module.exports = router;
