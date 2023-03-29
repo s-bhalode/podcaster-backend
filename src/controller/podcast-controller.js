@@ -78,7 +78,7 @@ const getAllPodcast = async (req, res) => {
     if (!podcast) {
       return res.status(404).json({ error: 'Podcast not found' });
     } else {
-      return res.status(200).json({ podcast });
+      return res.status(200).json(podcast);
     }
   } catch (err) {
     console.error(err);
