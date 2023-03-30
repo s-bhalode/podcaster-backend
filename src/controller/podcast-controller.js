@@ -91,7 +91,7 @@ const getPodcastbyCategory = async (req, res) => {
   try {
     const podcastCategories = await Podcast.podcastSchema.find({
       category: category,
-    });
+    }).populate('user_id');
     if (!podcastCategories) {
       return res
         .status(404)
