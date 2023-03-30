@@ -79,6 +79,10 @@ const episodeSchema = mongoose.model(
       type: Date,
       default: Date.now,
     },
+    size: {
+      type: String,
+      required: true
+    }
   })
 );
 
