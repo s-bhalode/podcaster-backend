@@ -97,6 +97,12 @@ const userActivitySchema = mongoose.model(
       default: Date.now,
       required: true,
     },
+    followers: {
+
+    },
+    following: {
+
+    }
   })
 );
 
