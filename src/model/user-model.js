@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const userSchema = mongoose.model(
-  "user",
+  'user',
   new mongoose.Schema({
     user_name: {
       type: String,
@@ -24,41 +24,53 @@ const userSchema = mongoose.model(
       type: Date,
       default: Date.now,
     },
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+      },
+    ],
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+      },
+    ],
     is_public: {
       type: Boolean,
       default: true,
     },
     user_gender: {
-      type: String
+      type: String,
     },
-    user_contact_no : {
-      type: Number
+    user_contact_no: {
+      type: Number,
     },
     user_dob: {
-      type: Date
+      type: Date,
     },
     user_profile_pic: {
-      type: String
+      type: String,
     },
     user_instagram_url: {
-      type: String
+      type: String,
     },
-    user_facebook_url : {
-      type: String
+    user_facebook_url: {
+      type: String,
     },
     user_twitter_url: {
-      type: String
-    }
+      type: String,
+    },
   })
 );
 
 const userActivitySchema = mongoose.model(
-  "userActivity",
+  'userActivity',
   new mongoose.Schema({
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
-      required: "true",
+      ref: 'user',
+      required: 'true',
     },
     activity_type: {
       type: String,
@@ -66,43 +78,39 @@ const userActivitySchema = mongoose.model(
     },
     podcast_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "podcasts",
+      ref: 'podcasts',
     },
     posts_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'posts'
+      ref: 'posts',
     },
-    post_comment_id : {
+    post_comment_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'post-comments'
+      ref: 'post-comments',
     },
-    post_like_id : {
+    post_like_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'post-likes'
+      ref: 'post-likes',
     },
-    podcast_comment_id : {
+    podcast_comment_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'post-comments'
+      ref: 'post-comments',
     },
-    podcast_like_id : {
+    podcast_like_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'post-likes'
+      ref: 'post-likes',
     },
-    episode_id : {
+    episode_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'episodes'
+      ref: 'episodes',
     },
     timestamp: {
       type: Date,
       default: Date.now,
       required: true,
     },
-    followers: {
-
-    },
-    following: {
-
-    }
+    followers: {},
+    following: {},
   })
 );
 
