@@ -174,9 +174,121 @@ const unfollowUser = async (req, res) => {
     return res.status(200).json({ user, currentUser });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+const saveContent = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const {contentType, contentId} = req.body;
+    const user = await userSchema.userSchema.findById(userId);
+
+    if(contentType === 'post'){
+      user.saved_history.posts.push(contentId);
+      await user.save();
+      return res.status(200).json('Post added successfully');
+    }else if(contentType === 'podcast'){
+      user.saved_history.podcasts.push(contentId);
+      await user.save();
+      return res.status(200).json('Podcast added successfully');
+    }else if(contentType === 'episode'){
+      user.saved_history.episode.push(contentId);
+      await user.save();
+      return res.status(200).json('Episode added successfully');
+    }
+
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({ message: 'Error occurred while saving data' });
+  }
+}
+const removeFromSaved = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const {contentType, contentId} =  req.body;
+
+    if(contentType === 'post'){
+      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'saved_history.posts' : contentId} })
+      if(!success){
+        return res.status(400).json({ message: 'Error occurred while removing post' });
+      }
+      return res.status(200).json('Post removed successfully');
+    }else if(contentType === 'podcast'){
+      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'saved_history.podcasts' : contentId} })
+      if(!success){
+        return res.status(400).json({ message: 'Error occurred while removing podcast' });
+      }
+      return res.status(200).json('Podcast removed successfully');
+    }else if(contentType === 'episode'){
+      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'saved_history.episode' : contentId} })
+      if(!success){
+        return res.status(400).json({ message: 'Error occurred while removing episode' });
+      }
+      return res.status(200).json('Episode removed successfully');
+    }
+
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({ message: 'Error occurred while removing data from saved' });
+  }
+}
+
+const removeFromFavorites = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const {contentType, contentId} =  req.body;
+
+    if(contentType === 'post'){
+      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'favorites.posts' : contentId} })
+      if(!success){
+        return res.status(400).json({ message: 'Error occurred while removing post' });
+      }
+      return res.status(200).json('Post removed successfully');
+    }else if(contentType === 'podcast'){
+      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'favorites.podcasts' : contentId} })
+      if(!success){
+        return res.status(400).json({ message: 'Error occurred while removing podcast' });
+      }
+      return res.status(200).json('Podcast removed successfully');
+    }else if(contentType === 'episode'){
+      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'favorites.episode' : contentId} })
+      if(!success){
+        return res.status(400).json({ message: 'Error occurred while removing episode' });
+      }
+      return res.status(200).json('Episode removed successfully');
+    }
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({ message: 'Error occurred while removing data from favorites' });
+  }
+}
+
+const addToFavorites = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const {contentId, contentType} = req.body;
+    const user = await userSchema.userSchema.findById(userId);
+    
+    if(contentType === 'post'){
+      user.favorites.posts.push(contentId);
+      await user.save();
+      return res.status(200).json('Added to favorites successfully');
+    }else if(contentType === 'podcast'){
+      user.favorites.podcasts.push(contentId);
+      await user.save();
+      return res.status(200).json('Added to favorites successfully');
+    }else if(contentType === 'episode'){
+      user.favorites.episode.push(contentId);
+      await user.save();
+      return res.status(200).json('Added to favorites successfully');
+    }
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({ message: 'Error occurred while saving data to favorites' });
+  }
+}
+
 
 module.exports = {
   getallUsers,
@@ -185,4 +297,8 @@ module.exports = {
   getUserActivity,
   pushFollowerCount,
   unfollowUser,
+  saveContent,
+  addToFavorites,
+  removeFromSaved,
+  removeFromFavorites
 };
