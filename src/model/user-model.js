@@ -102,6 +102,17 @@ const userActivitySchema = mongoose.model(
     },
     following: {
 
+    },
+    saved_history: {
+      post: {
+        
+      },
+      podcast: {
+
+      }
+    },
+    favorites: {
+
     }
   })
 );
