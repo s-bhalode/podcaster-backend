@@ -109,6 +109,17 @@ const userActivitySchema = mongoose.model(
       default: Date.now,
       required: true,
     },
+    saved_history: {
+      post: {
+        
+      },
+      podcast: {
+
+      }
+    },
+    favorites: {
+
+    }
     followers: {},
     following: {},
   })
