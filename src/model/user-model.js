@@ -61,6 +61,40 @@ const userSchema = mongoose.model(
     user_twitter_url: {
       type: String,
     },
+    saved_history: {
+      posts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'posts',
+        unique: true
+      }],
+      podcasts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'podcasts',
+        unique: true
+      }],
+      episode: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'episodes',
+        unique: true
+      }]
+    },
+    favorites: {
+      posts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'posts',
+        unique: true
+      }],
+      podcasts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'podcasts',
+        unique: true
+      }],
+      episode: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'episodes',
+        unique: true
+      }]
+    }
   })
 );
 
@@ -108,20 +142,7 @@ const userActivitySchema = mongoose.model(
       type: Date,
       default: Date.now,
       required: true,
-    },
-    saved_history: {
-      post: {
-        
-      },
-      podcast: {
-
-      }
-    },
-    favorites: {
-
     }
-    followers: {},
-    following: {},
   })
 );
 

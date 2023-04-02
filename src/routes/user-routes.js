@@ -25,4 +25,19 @@ router.put('/api/user/:userId/unfollow/:unfollowerId',userController.unfollowUse
 router.get('/api/user-activity/:activityType/:userId', userController.getUserActivity);
 
 
+// to save content send contentType as 'post' or 'podcast' or 'episode' and contentId
+router.post('/api/user-save-content/:userId', userController.saveContent);
+
+// to remove content from saved send contentType as 'post' or 'podcast' or 'episode' and contentId
+router.post('/api/remove-saved-content/:userId', userController.removeFromSaved);
+
+// add to favorites send contentType as 'post' or 'podcast' or 'episode' and contentId
+router.post('/api/user-add-to-favorites/:userId', userController.addToFavorites);
+
+// to remove content from favorites send contentType as 'post' or 'podcast' or 'episode' and contentId
+router.post('/api/remove-favorites-content/:userId', userController.removeFromFavorites);
+
+
+
+
 module.exports = router;
