@@ -34,6 +34,13 @@ const podcastSchema = mongoose.model(
       type: String,
       // required: true,
     },
+    location: {
+      type: String,
+    },
+    tagged_people: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    }],
     episode: [
       {
         type: mongoose.Schema.Types.ObjectId,
