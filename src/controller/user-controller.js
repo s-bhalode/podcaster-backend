@@ -1,5 +1,7 @@
 const userSchema = require('../model/user-model');
 const bcrypt = require('bcrypt');
+const Podcast = require('../model/podcast-model');
+const home = require('../model/home-model');
 
 const getallUsers = async (req, res) => {
   try {
@@ -11,13 +13,18 @@ const getallUsers = async (req, res) => {
 };
 
 const getUserbyId = async (req, res) => {
+  const { userId } = req.params;
   try {
     const user = await userSchema.userSchema
       .findById(req.params.id)
       .populate({ path: 'following', select: 'user_name user_email user_role' })
       .populate({ path: 'followers', select: 'user_name user_email user_role' })
       .exec();
-    return res.json(user);
+      const podcasts = await Podcast.podcastSchema.find({ user: userId });
+      const post = await home.postSchema.find({ user: userId });
+      
+      return res.status(200).json({user,post,podcasts});
+      
   } catch (err) {
     return res.status(404).json({ message: 'User not found' });
   }
