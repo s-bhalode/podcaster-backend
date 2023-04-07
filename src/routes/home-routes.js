@@ -23,5 +23,16 @@ router.post('/api/post/like/:postId/:userId',homeController.pushLikesIntoPostByI
 // getting the particular user post data 
 router.get('/api/user/posts/:userId',homeController.getUserPostData)
 
+//Searching Routes 
+
+// Search Podcast
+router.get('/api/podcasts/search/:term',homeController.searchPodcasts)
+
+// Search post
+router.get('/api/posts/search/:term',homeController.searchPost)
+
+// Search chatroom
+router.get('/api/chatrooms/search/:term',homeController.searchChatrooms)
+
 
 module.exports = router; 
