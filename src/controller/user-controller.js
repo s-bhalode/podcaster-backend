@@ -334,7 +334,47 @@ const addToFavorites = async (req, res) => {
       .status(500)
       .json({ message: 'Error occurred while saving data to favorites' });
   }
-};
+}
+
+const podcastRecommendation = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const user = await userSchema.userSchema.findById(userId);
+    const userInterests = user.interests;
+
+    const recommPodcasts = await Podcast.podcastSchema.find({category: {$in: userInterests}});
+    console.log(recommPodcasts);
+    const sortedRecommPodcasts = recommPodcasts.sort((a, b) => b.likes.length - a.likes.length);
+
+    // return res.status(200).json(sortedRecommPodcasts.slice(0, 10));
+    return res.status(200).json(sortedRecommPodcasts);
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({ message: 'Error occurred while recommending podcasts' });
+  }
+}
+
+const addUserInterest = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const {interest} = req.body;
+
+    const user = await userSchema.userSchema.findById(userId);
+    if(!user){
+      return res.status(500).json({ message: 'Error occurred while adding user interests' });
+    }
+    interest.map(inter => {
+      user.interests.push(inter);
+    })
+    
+    await user.save();
+    return res.status(200).json("Interests added successfully!");
+
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({ message: 'Error occurred while adding user interests' });
+  }
+}
 
 module.exports = {
   getallUsers,
@@ -347,4 +387,6 @@ module.exports = {
   addToFavorites,
   removeFromSaved,
   removeFromFavorites,
+  addUserInterest,
+  podcastRecommendation
 };

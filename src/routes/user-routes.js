@@ -37,7 +37,11 @@ router.post('/api/user-add-to-favorites/:userId', userController.addToFavorites)
 // to remove content from favorites send contentType as 'post' or 'podcast' or 'episode' and contentId
 router.post('/api/remove-favorites-content/:userId', userController.removeFromFavorites);
 
+// to add user interest
+router.post('/api/:userId/add-interest', userController.addUserInterest);
 
+// for podcast recommendations
+router.get('/api/:userId/podcast-recommendations', userController.podcastRecommendation);
 
 
 module.exports = router;

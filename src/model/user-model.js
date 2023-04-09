@@ -94,7 +94,8 @@ const userSchema = mongoose.model(
         ref: 'episodes',
         unique: true
       }]
-    }
+    },
+    interests : []
   })
 );
 
