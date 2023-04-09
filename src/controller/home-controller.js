@@ -236,6 +236,20 @@ const searchChatrooms = async (req, res) =>{
     }
 }
 
+const podcastsOfTheDay = async (req, res) => {
+    try{
+      const podcasts = await Podcast.podcastSchema.find().sort({'likes.length': -1}).limit(2);
+      if(!podcasts){
+        return res.status(500).json({ message: 'OOPs! something went wrong' });
+      }
+
+      return res.status(200).json(podcasts);
+    }catch(err){
+      console.error(err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
   createPost,
   getPostById,
@@ -246,5 +260,6 @@ module.exports = {
   updatePostById,
   searchPodcasts,
   searchPost,
-  searchChatrooms
+  searchChatrooms,
+  podcastsOfTheDay
 };
