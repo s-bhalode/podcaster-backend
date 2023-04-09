@@ -1,7 +1,7 @@
 const userSchema = require('../model/user-model');
 const home = require('../model/home-model');
-const podcastModel = require('../model/podcast-model');
-
+const Podcast = require('../model/podcast-model');
+const Chatroom = require('../model/chat-room-model')
 const createPost = async (req, res) => {
   const { description, images, is_Public, bgms, created_at } = req.body;
   const {userId} = req.params;
@@ -190,6 +190,52 @@ const updatePostById = async (req, res) => {
   }
 };
 
+
+const searchPodcasts = async (req, res) =>{
+  const {term} = req.params; 
+  const query = new RegExp(term, 'i');
+ try{ 
+  const podcast = await Podcast.podcastSchema.find({ $or : [{title : query}, { description: query }]}).populate('user_id').populate('episode').exec();
+  if(!podcast){
+    return res.status(404).json({message : "No search result found!!"})
+  }
+  return res.status(200).json(podcast);
+ } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+}
+const searchPost = async (req, res) =>{
+  const {term} = req.params; 
+  const query = new RegExp(term, 'i');
+ try{ 
+  const podcast = await home.postSchema.find({ $or : [{ description: query }]}).populate('user_id').exec();
+  if(!podcast){
+    return res.status(404).json({message : "No search result found!!"})
+  }
+  return res.status(200).json(podcast);
+ } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+const searchChatrooms = async (req, res) =>{
+  const {term} = req.params; 
+  console.log(term)
+  const query = new RegExp(term, 'i');
+ try{ 
+  const podcast = await Chatroom.find({ $or : [{ chatTopic: query }]}).populate('ownerId').exec();
+  if(!podcast){
+    return res.status(404).json({message : "No search result found!!"})
+  }
+  return res.status(200).json(podcast);
+ } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
   createPost,
   getPostById,
@@ -197,5 +243,8 @@ module.exports = {
   pushCommentsIntoPostById,
   pushLikesIntoPostById,
   getUserPostData,
-  updatePostById
+  updatePostById,
+  searchPodcasts,
+  searchPost,
+  searchChatrooms
 };

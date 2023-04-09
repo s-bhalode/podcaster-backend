@@ -1,6 +1,7 @@
 const userSchema = require('../model/user-model');
 const bcrypt = require('bcrypt');
-const podcast = require('../model/podcast-model');
+const Podcast = require('../model/podcast-model');
+const home = require('../model/home-model');
 
 const getallUsers = async (req, res) => {
   try {
@@ -12,9 +13,18 @@ const getallUsers = async (req, res) => {
 };
 
 const getUserbyId = async (req, res) => {
+  const { userId } = req.params;
   try {
-    const user = await userSchema.userSchema.findById(req.params.id);
-    return res.json(user);
+    const user = await userSchema.userSchema
+      .findById(req.params.id)
+      .populate({ path: 'following', select: 'user_name user_email user_role' })
+      .populate({ path: 'followers', select: 'user_name user_email user_role' })
+      .exec();
+      const podcasts = await Podcast.podcastSchema.find({ user: userId });
+      const post = await home.postSchema.find({ user: userId });
+      
+      return res.status(200).json({user,post,podcasts});
+      
   } catch (err) {
     return res.status(404).json({ message: 'User not found' });
   }
@@ -180,113 +190,149 @@ const unfollowUser = async (req, res) => {
 };
 
 const saveContent = async (req, res) => {
-  try{
-    const {userId} = req.params;
-    const {contentType, contentId} = req.body;
+  try {
+    const { userId } = req.params;
+    const { contentType, contentId } = req.body;
     const user = await userSchema.userSchema.findById(userId);
 
-    if(contentType === 'post'){
+    if (contentType === 'post') {
       user.saved_history.posts.push(contentId);
       await user.save();
       return res.status(200).json('Post added successfully');
-    }else if(contentType === 'podcast'){
+    } else if (contentType === 'podcast') {
       user.saved_history.podcasts.push(contentId);
       await user.save();
       return res.status(200).json('Podcast added successfully');
-    }else if(contentType === 'episode'){
+    } else if (contentType === 'episode') {
       user.saved_history.episode.push(contentId);
       await user.save();
       return res.status(200).json('Episode added successfully');
     }
-
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Error occurred while saving data' });
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while saving data' });
   }
-}
+};
 const removeFromSaved = async (req, res) => {
-  try{
-    const {userId} = req.params;
-    const {contentType, contentId} =  req.body;
+  try {
+    const { userId } = req.params;
+    const { contentType, contentId } = req.body;
 
-    if(contentType === 'post'){
-      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'saved_history.posts' : contentId} })
-      if(!success){
-        return res.status(400).json({ message: 'Error occurred while removing post' });
+    if (contentType === 'post') {
+      const success = await userSchema.userSchema.updateOne(
+        { _id: userId },
+        { $pull: { 'saved_history.posts': contentId } }
+      );
+      if (!success) {
+        return res
+          .status(400)
+          .json({ message: 'Error occurred while removing post' });
       }
       return res.status(200).json('Post removed successfully');
-    }else if(contentType === 'podcast'){
-      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'saved_history.podcasts' : contentId} })
-      if(!success){
-        return res.status(400).json({ message: 'Error occurred while removing podcast' });
+    } else if (contentType === 'podcast') {
+      const success = await userSchema.userSchema.updateOne(
+        { _id: userId },
+        { $pull: { 'saved_history.podcasts': contentId } }
+      );
+      if (!success) {
+        return res
+          .status(400)
+          .json({ message: 'Error occurred while removing podcast' });
       }
       return res.status(200).json('Podcast removed successfully');
-    }else if(contentType === 'episode'){
-      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'saved_history.episode' : contentId} })
-      if(!success){
-        return res.status(400).json({ message: 'Error occurred while removing episode' });
+    } else if (contentType === 'episode') {
+      const success = await userSchema.userSchema.updateOne(
+        { _id: userId },
+        { $pull: { 'saved_history.episode': contentId } }
+      );
+      if (!success) {
+        return res
+          .status(400)
+          .json({ message: 'Error occurred while removing episode' });
       }
       return res.status(200).json('Episode removed successfully');
     }
-
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Error occurred while removing data from saved' });
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while removing data from saved' });
   }
-}
+};
 
 const removeFromFavorites = async (req, res) => {
-  try{
-    const {userId} = req.params;
-    const {contentType, contentId} =  req.body;
+  try {
+    const { userId } = req.params;
+    const { contentType, contentId } = req.body;
 
-    if(contentType === 'post'){
-      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'favorites.posts' : contentId} })
-      if(!success){
-        return res.status(400).json({ message: 'Error occurred while removing post' });
+    if (contentType === 'post') {
+      const success = await userSchema.userSchema.updateOne(
+        { _id: userId },
+        { $pull: { 'favorites.posts': contentId } }
+      );
+      if (!success) {
+        return res
+          .status(400)
+          .json({ message: 'Error occurred while removing post' });
       }
       return res.status(200).json('Post removed successfully');
-    }else if(contentType === 'podcast'){
-      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'favorites.podcasts' : contentId} })
-      if(!success){
-        return res.status(400).json({ message: 'Error occurred while removing podcast' });
+    } else if (contentType === 'podcast') {
+      const success = await userSchema.userSchema.updateOne(
+        { _id: userId },
+        { $pull: { 'favorites.podcasts': contentId } }
+      );
+      if (!success) {
+        return res
+          .status(400)
+          .json({ message: 'Error occurred while removing podcast' });
       }
       return res.status(200).json('Podcast removed successfully');
-    }else if(contentType === 'episode'){
-      const success = await userSchema.userSchema.updateOne({_id: userId}, {$pull: {'favorites.episode' : contentId} })
-      if(!success){
-        return res.status(400).json({ message: 'Error occurred while removing episode' });
+    } else if (contentType === 'episode') {
+      const success = await userSchema.userSchema.updateOne(
+        { _id: userId },
+        { $pull: { 'favorites.episode': contentId } }
+      );
+      if (!success) {
+        return res
+          .status(400)
+          .json({ message: 'Error occurred while removing episode' });
       }
       return res.status(200).json('Episode removed successfully');
     }
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Error occurred while removing data from favorites' });
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while removing data from favorites' });
   }
-}
+};
 
 const addToFavorites = async (req, res) => {
-  try{
-    const {userId} = req.params;
-    const {contentId, contentType} = req.body;
+  try {
+    const { userId } = req.params;
+    const { contentId, contentType } = req.body;
     const user = await userSchema.userSchema.findById(userId);
-    
-    if(contentType === 'post'){
+
+    if (contentType === 'post') {
       user.favorites.posts.push(contentId);
       await user.save();
       return res.status(200).json('Added to favorites successfully');
-    }else if(contentType === 'podcast'){
+    } else if (contentType === 'podcast') {
       user.favorites.podcasts.push(contentId);
       await user.save();
       return res.status(200).json('Added to favorites successfully');
-    }else if(contentType === 'episode'){
+    } else if (contentType === 'episode') {
       user.favorites.episode.push(contentId);
       await user.save();
       return res.status(200).json('Added to favorites successfully');
     }
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Error occurred while saving data to favorites' });
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while saving data to favorites' });
   }
 }
 
@@ -296,7 +342,7 @@ const podcastRecommendation = async (req, res) => {
     const user = await userSchema.userSchema.findById(userId);
     const userInterests = user.interests;
 
-    const recommPodcasts = await podcast.podcastSchema.find({category: {$in: userInterests}});
+    const recommPodcasts = await Podcast.podcastSchema.find({category: {$in: userInterests}});
     console.log(recommPodcasts);
     const sortedRecommPodcasts = recommPodcasts.sort((a, b) => b.likes.length - a.likes.length);
 
@@ -329,7 +375,6 @@ const addUserInterest = async (req, res) => {
     return res.status(500).json({ message: 'Error occurred while adding user interests' });
   }
 }
-
 
 module.exports = {
   getallUsers,

@@ -4,7 +4,7 @@ const Podcast = require('../model/podcast-model');
 const createPodcast = async (req, res) => {
   const { userId } = req.params;
   const user_id = userId;
-  const {title, description, duration, image, bgms, file, category, created_at} = req.body;
+  const {title, description, duration, image, bgms, file, category, created_at, location, tagged_people} = req.body;
   try {
     //creating a podcast (this function is same for all the user)
     const newPodcast = await Podcast.podcastSchema.create({
@@ -17,6 +17,8 @@ const createPodcast = async (req, res) => {
       file,
       category,
       created_at,
+      location,
+      tagged_people
     });
     const podcast_id = newPodcast._id;
     const activity_type = 'my-podcasts';
