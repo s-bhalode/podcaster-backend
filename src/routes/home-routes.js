@@ -34,8 +34,12 @@ router.get('/api/posts/search/:term',homeController.searchPost)
 // Search chatroom
 router.get('/api/chatrooms/search/:term',homeController.searchChatrooms)
 
+// Search chatroom
+router.get('/api/authors/search/:term',homeController.searchAuthors);
+
 // get podcasts of the day
 router.get('/api/podcast-of-the-day', homeController.podcastsOfTheDay);
+
 
 
 module.exports = router; 
