@@ -236,6 +236,69 @@ const searchChatrooms = async (req, res) =>{
     }
 }
 
+// const searchAuthors = async (req, res) => {
+//   const {term} = req.params; 
+//   console.log(term)
+//   const query = new RegExp(term, 'i');
+//   try{
+//     const authors = await Podcast.podcastSchema.find({
+//     }).populate({
+//       path: 'user_id',
+//       select: 'user_name user_email following followers',
+//       match: { user_name: { $regex: query } }
+//     }).exec();
+//     if(!authors){
+//       return res.status(500).json("No search result found!!");
+//     }
+//     return res.status(202).json(authors);
+//   }catch(err){
+//     console.log(err);
+//     return res.status(400).json("Internal server error");
+//   }
+// }
+
+const searchAuthors = async (req, res) => {
+  const {term} = req.params; 
+  console.log(term)
+  // const query = new RegExp(term, 'i');
+  try{
+    const authors = await Podcast.podcastSchema.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "author"
+        }
+      },
+      {
+        $unwind: "$author"
+      },
+      {
+        $match: {
+          $or: [
+            { "author.user_name": { $regex: term, $options: "i" } }
+          ]
+        }
+      },
+      {
+        $group: {
+          _id: "$user_id",
+          author: { $addToSet: "$author" },
+        }
+      }
+    ])
+    if(!authors){
+      return res.status(500).json("No search result found!!");
+    }
+    return res.status(202).json(authors);
+  }catch(err){
+    console.log(err);
+    return res.status(400).json("Internal server error");
+  }
+}
+
+
 module.exports = {
   createPost,
   getPostById,
@@ -246,5 +309,6 @@ module.exports = {
   updatePostById,
   searchPodcasts,
   searchPost,
-  searchChatrooms
+  searchChatrooms,
+  searchAuthors
 };
