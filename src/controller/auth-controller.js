@@ -23,7 +23,7 @@ const signUp = async (req, res) => {
         newUser.user_password = hash;
         const savedUserRes = await newUser.save();
         if(savedUserRes){
-            return res.status(200).json({message: "User registered successfully!"})
+            return res.status(200).json({message: "User registered successfully!",newUser: savedUserRes})
         }
     })
 }
@@ -37,7 +37,7 @@ const signIn = async (req, res) => {
     }
     const verifyPassword = await bcrypt.compare(user_password, user.user_password);
     if(verifyPassword){
-        return res.status(200).json({message: "You have logged in successfully!"});
+        return res.status(200).json({message: "You have logged in successfully!",user : user});
     }
     return res.status(400).json({message: 'Invalid credentials'});
 
