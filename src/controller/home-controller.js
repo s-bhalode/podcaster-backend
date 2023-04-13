@@ -57,7 +57,7 @@ const getPostById = async (req, res) => {
 const getAllPost = async (req, res) => {
   try {
     const post = await home.postSchema
-      .find()
+      .find({is_Public : true})
       .populate('user_id')
       .populate('likes')
       .populate({
