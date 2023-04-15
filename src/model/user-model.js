@@ -3,6 +3,21 @@ const mongoose = require('mongoose');
 const userSchema = mongoose.model(
   'user',
   new mongoose.Schema({
+    socketId: {
+      type: String
+    },
+    meetingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: "chatRoom"
+    },
+    userId: {
+      type : String,
+      required: true
+    },
+    joined:{
+      type: Boolean,
+      required: true
+    },
     user_name: {
       type: String,
       required: true,

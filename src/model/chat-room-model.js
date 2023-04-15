@@ -11,9 +11,17 @@ const chatRoomSchema = mongoose.model("chatRoom", new mongoose.Schema(
             type: String,
             required: true
         },
-        ownerId : {
+        hostId : {
             type: mongoose.Schema.Types.ObjectId,
             ref : 'user'
+        },
+        hostName : {
+            type : String,
+            required: true
+        },
+        startTime: {
+            type: Date,
+            required: true
         },
         speakers : [{
             type: mongoose.Schema.Types.ObjectId,
@@ -24,6 +32,15 @@ const chatRoomSchema = mongoose.model("chatRoom", new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'user'
         }]
+    },
+    {
+        toJSON: {
+            transform: (doc, ret) => {
+                ret.id = ret._id.toString(),
+                delete ret._id;
+                delete ret.__v;
+            }
+        }
     },
     {
         timestamps: true
