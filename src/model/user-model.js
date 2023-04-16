@@ -16,7 +16,7 @@ const userSchema = mongoose.model(
     },
     joined:{
       type: Boolean,
-      required: true
+      required: false
     },
     user_name: {
       type: String,
