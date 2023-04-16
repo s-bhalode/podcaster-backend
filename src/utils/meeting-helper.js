@@ -2,8 +2,8 @@ const chatRoomService = require('../middleware/chatRoomService');
 const {meetingPayloadEnum} = require('../utils/meeting-payload.enum');
 
 
-const joinMeeting = async (meetingId, socket, payload, meetingServer) => {
-    const {userId, user_name} = payload;
+const joinMeeting = async (meetingId, socket, meetingServer, payload) => {
+    const {userId, user_name} = payload.data;
 
     chatRoomService.isMeetingPresent(meetingId, async (err, results) => {
         if(err && !results){

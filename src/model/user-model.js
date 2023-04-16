@@ -8,11 +8,11 @@ const userSchema = mongoose.model(
     },
     meetingId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: "chatRoom"
+      ref: "chatRoom"
     },
     userId: {
       type : String,
-      required: true
+      required: false
     },
     joined:{
       type: Boolean,

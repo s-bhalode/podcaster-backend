@@ -17,7 +17,7 @@ const chatRoomSchema = mongoose.model("chatRoom", new mongoose.Schema(
         },
         hostName : {
             type : String,
-            required: true
+            required: false
         },
         startTime: {
             type: Date,
