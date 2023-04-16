@@ -32,8 +32,8 @@ const getUserbyId = async (req, res) => {
         },
       })
       .exec();
-      const podcasts = await Podcast.podcastSchema.find({ user: userId });
-      const post = await home.postSchema.find({ user: userId });
+      const podcasts = await Podcast.podcastSchema.find({ user_id: userId });
+      const post = await home.postSchema.find({ user_id: userId });
       
       return res.status(200).json({user,post,podcasts});
       
