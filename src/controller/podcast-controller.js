@@ -4,12 +4,13 @@ const Podcast = require('../model/podcast-model');
 const createPodcast = async (req, res) => {
   const { userId } = req.params;
   const user_id = userId;
-  const {title, description, duration, image, bgms, file, category, created_at, location, tagged_people} = req.body;
+  const {title, description, duration, image, bgms, file, category, created_at, location, tagged_people,size} = req.body;
+  const audioFile = file;
   try {
     //creating a podcast (this function is same for all the user)
     const newPodcast = await Podcast.podcastSchema.create({
       title,
-      description,
+      description, 
       duration,
       user_id,
       image,
@@ -18,16 +19,36 @@ const createPodcast = async (req, res) => {
       category,
       created_at,
       location,
-      tagged_people
+      tagged_people,
+      size
     });
     const podcast_id = newPodcast._id;
     const activity_type = 'my-podcasts';
 
+    const savedPodcast = await Podcast.podcastSchema.findById(podcast_id);
+    if(savedPodcast.episode.length === 0){
+      const firstEpisode = new Podcast.episodeSchema({
+        title,
+        description,
+        audioFile,
+        duration,
+        size
+      }); 
+      const firstEpisodeId = firstEpisode.id;
+      await firstEpisode.save();
+      
+      savedPodcast.episode.push(firstEpisodeId);
+      const save = await savedPodcast.save();
+      if(save){
+        console.log("New Podcasts First Episode saved");  
+      }
+    }
+    // console.log("length is :",savedPodcast.episode.length)
     await userSchema.userActivitySchema.create({
       user_id,
       activity_type,
       podcast_id
-    })
+    });
 
     return res.status(200).json(newPodcast);
   } catch (err) {
@@ -209,7 +230,7 @@ const pushLikesIntoPodcastbyId = async (req, res) => {
 };
 
 const createEpisodes = async (req, res) => {
-  const { title, description, audioFile, duration } = req.body;
+  const { title, description, audioFile, duration, size } = req.body;
   console.log(req.params);
   const { podcastId, userId } = req.params;
   const user_id = userId;
@@ -221,6 +242,7 @@ const createEpisodes = async (req, res) => {
       description,
       audioFile,
       duration,
+      size
     });
     const episode_id = newEpisode._id;
     const savedEpisode = await newEpisode.save();
@@ -229,7 +251,7 @@ const createEpisodes = async (req, res) => {
     if (!podcast) {
       return res.status(404).json({ message: 'Podcast not found' });
     } else {
-      podcast.episode.push(savedEpisode);
+      podcast.episode.push(episode_id);
       await userSchema.userActivitySchema.create({
         user_id,
         activity_type,
