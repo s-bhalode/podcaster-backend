@@ -54,13 +54,13 @@ const isMeetingPresent = async (meetingId, callback) => {
 }
 
 const checkMeetingExists = async (meetingId, callback) => {
-    chatRoomSchema.findById(meetingId, "hostId", "startTime")
+    chatRoomSchema.findById(meetingId)
     .populate("participants", "speakers")
     .then((res) => {
         if(!res){
             callback("Invalid Meeting Id");
         }else{
-            callback(null, true);
+            callback(null, res);
         }
     })
     .catch((err) => {

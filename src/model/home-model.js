@@ -13,6 +13,9 @@ const postSchema = mongoose.model(
     bgms: {
       type: String,
     },
+    text_style: {
+      type: String,
+    },
     images: [
       {
         type: String,
@@ -64,8 +67,7 @@ const postComments = mongoose.model(
 );
 
 module.exports = {
-    postSchema,
-    postLikes,
-    postComments,
-  };
-  
+  postSchema,
+  postLikes,
+  postComments,
+};

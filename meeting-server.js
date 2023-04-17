@@ -24,27 +24,30 @@ const handleMessage = (meetingId, socket, message, meetingServer) => {
     }
 
     switch(payload.type){
-        case meetingPayloadEnum.JOINED_MEETING: 
-            meetingHelper.joinMeeting(meetingId, socket, payload, meetingServer);
+        case meetingPayloadEnum.JOIN_MEETING: 
+            meetingHelper.joinMeeting(meetingId, socket, meetingServer, payload);
             break;
         case meetingPayloadEnum.CONNECTION_REQUEST:
-            meetingHelper.forwardConnectionRequest(meetingId, socket, payload, meetingServer);
+            meetingHelper.forwardConnectionRequest(meetingId, socket, meetingServer, payload);
             break;
         case meetingPayloadEnum.OFFER_SDP:
-            meetingHelper.forwardOfferSDP(meetingId, socket, payload, meetingServer);
+            meetingHelper.forwardOfferSDP(meetingId, socket, meetingServer, payload);
             break;
+        case meetingPayloadEnum.ICECANDIDATE:
+                meetingHelper.forwardOfferSDP(meetingId, socket, meetingServer, payload);
+                break;
         case meetingPayloadEnum.ANSWER_SDP:
-            meetingHelper.forwardAnswerSDP(meetingId, socket, payload, meetingServer);
+            meetingHelper.forwardAnswerSDP(meetingId, socket, meetingServer, payload);
             break;
         case meetingPayloadEnum.LEAVE_MEETING:
-            meetingHelper.userLeft(meetingId, socket, payload, meetingServer);
+            meetingHelper.userLeft(meetingId, socket, meetingServer, payload);
             break;
         case meetingPayloadEnum.END_MEETING:
-            meetingHelper.endMeeting(meetingId, socket, payload, meetingServer);
+            meetingHelper.endMeeting(meetingId, socket, meetingServer, payload);
             break;
         case meetingPayloadEnum.VIDEO_TOGGLE:
         case meetingPayloadEnum.AUDIO_TOGGLE:
-            meetingHelper.forwardEvent(meetingId, socket, payload, meetingServer);
+            meetingHelper.forwardEvent(meetingId, socket, meetingServer, payload);
             break;
         case meetingPayloadEnum.UNKNOWN:
             break;
