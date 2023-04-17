@@ -16,6 +16,10 @@ const podcastSchema = mongoose.model(
     image: {
       type: String,
     },
+    size: {
+      type: String,
+      required: true
+    },
     created_at: {
       type: Date,
       default: Date.now,

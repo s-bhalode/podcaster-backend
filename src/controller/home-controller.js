@@ -1,9 +1,10 @@
 const userSchema = require('../model/user-model');
 const home = require('../model/home-model');
 const Podcast = require('../model/podcast-model');
-const Chatroom = require('../model/chat-room-model')
+const Chatroom = require('../model/chat-room-model');
+
 const createPost = async (req, res) => {
-  const { description, images, is_Public, bgms, created_at } = req.body;
+  const { description, images, is_Public, bgms, created_at, text_style } = req.body;
   const {userId} = req.params;
   const user_id = userId;
   const activity_type = 'my-posts';
@@ -15,6 +16,7 @@ const createPost = async (req, res) => {
       is_Public,
       bgms,
       created_at,
+      text_style
     });
     const post_id = newPost._id;
     await userSchema.userActivitySchema.create({
@@ -159,7 +161,7 @@ const getUserPostData = async (req, res) => {
 };
 
 const updatePostById = async (req, res) => {
-  const { description, images, is_Public, bgms} = req.body;
+  const { description, images, is_Public, bgms, text_style} = req.body;
   const {userId, postId} = req.params;
   const user_id =userId;
   const post = await home.postSchema.findById(postId).populate('user_id');
@@ -179,6 +181,7 @@ const updatePostById = async (req, res) => {
           images,
           is_Public,
           bgms,
+          text_style
         },
         { new: true }
       );
