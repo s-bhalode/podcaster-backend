@@ -1,12 +1,18 @@
 const express = require('express');
 const router = new express.Router();
 const authController = require('../controller/auth-controller');
-const userController = require('../controller/user-controller')
+const userController = require('../controller/user-controller');
+const { auth } = require('firebase-admin');
 
 
 // Authentication routes
 router.post('/signup', authController.signUp);
 router.post('/signin', authController.signIn);
+
+// to trigger email for changing password
+router.post('/api/forgot-password', authController.forgotPassword);
+// to change password
+router.post('/api/change-password/:userId', authController.changePassword);
 
 
 
@@ -42,6 +48,9 @@ router.post('/api/:userId/add-interest', userController.addUserInterest);
 
 // for podcast recommendations
 router.get('/api/:userId/podcast-recommendations', userController.podcastRecommendation);
+
+
+
 
 
 module.exports = router;
