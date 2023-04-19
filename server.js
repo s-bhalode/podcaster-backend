@@ -5,8 +5,10 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const userRouter = require('./src/routes/user-routes');
 const podcastRouter = require('./src/routes/podcast-routes');
-const homerouter = require('./src/routes/home-routes')
+const homerouter = require('./src/routes/home-routes');
+const Scheduler = require('./src/controller/schedule-controller')
 const chatRoomRouter = require('./src/routes/chat-room-routes');
+const cron = require('node-cron');
 
 // const ACTIONS = require('./src/action');
 dotenv.config({path: './.env'});
@@ -25,6 +27,7 @@ initMeetingServer(server);
 //         methods: ['GET', 'POST'],
 //     },
 // })
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));

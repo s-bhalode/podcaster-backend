@@ -69,9 +69,9 @@ const podcastSchema = mongoose.model(
 // shares: [{
 //   type: mongoose.Schema.Types.ObjectId,
 //   ref: 'User',
-// }],
+// }], 
 
-const episodeSchema = mongoose.model(
+const episodeSchema = mongoose.model( 
   'episodes',
   new mongoose.Schema({
     title: {
@@ -118,9 +118,83 @@ const podcastComments = mongoose.model(
   })
 );
 
+
+// Schedule POdcast Schema
+const schedulePodcastSchema = mongoose.model(
+  'schedulepodcasts',
+  new mongoose.Schema({
+    title: {
+      type: String,
+    },
+    description: {
+      type: String,
+    },
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    },
+    image: {
+      type: String,
+    },
+    size: {
+      type: String,
+      required: true
+    },
+    schedule_time:{
+       type:Date,
+    },
+    created_at: {
+      type: Date,
+      default: Date.now,
+    },
+    bgms: {
+      type: String,
+    },
+    category: {
+      type: String,
+    },
+    duration: {
+      type: String,
+      // required: true,
+    },
+    file: {
+      type: String,
+      // required: true,
+    },
+    location: {
+      type: String,
+    },
+    tagged_people: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    }],
+    episode: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'episodes',
+      },
+    ],
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'podcast-likes',
+      },
+    ],
+
+    comments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'podcast-comments',
+      },
+    ],
+  })
+);
+
+
 module.exports = {
   podcastSchema,
   episodeSchema,
   podcastLikes,
   podcastComments,
+  schedulePodcastSchema,
 };
