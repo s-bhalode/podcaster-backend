@@ -48,6 +48,9 @@ app.use(podcastRouter);
 app.use(chatRoomRouter);
 app.use(homerouter);
 
+app.get('/', (req, res) => {
+    return res.status(202).json("Hello Podcasters!");
+})
 
 // Sockets
 // const socketUserMap = {};
