@@ -27,7 +27,7 @@ const postSchema = mongoose.model(
     },
     created_at: {
       type: Date,
-      default: Date.now,
+      default: Date.now, 
     },
     likes: [
       {
@@ -66,8 +66,57 @@ const postComments = mongoose.model(
   })
 );
 
+const schedulePostSchema = mongoose.model(
+  'scheduleposts',
+  new mongoose.Schema({
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    },
+    description: {
+      type: String,
+    },
+    bgms: {
+      type: String,
+    },
+    text_style: {
+      type: String,
+    },
+    images: [
+      {
+        type: String,
+      },
+    ],
+    is_Public: {
+      type: Boolean,
+      default: true,
+    },
+    created_at: {
+      type: Date,
+      default: Date.now,
+    },
+    schedule_time: {
+      type: Date,
+    },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'post-likes',
+      },
+    ],
+
+    comments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'post-comments',
+      },
+    ],
+  })
+);
+
 module.exports = {
   postSchema,
   postLikes,
   postComments,
+  schedulePostSchema,
 };

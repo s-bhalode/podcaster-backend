@@ -3,11 +3,33 @@ const home = require('../model/home-model');
 const Podcast = require('../model/podcast-model');
 const Chatroom = require('../model/chat-room-model');
 
-const createPost = async (req, res) => {
-  const { description, images, is_Public, bgms, created_at, text_style } = req.body;
+const createPost =async (req,res) =>{
+  const { description, images, is_Public, bgms, created_at, text_style, schedule_time } = req.body;
   const {userId} = req.params;
   const user_id = userId;
-  const activity_type = 'my-posts';
+  try {
+    const newPost = await home.schedulePostSchema.create({
+      description,
+      user_id,
+      images,
+      is_Public,
+      bgms,
+      created_at,
+      text_style,
+      schedule_time
+    });
+    const post_id = newPost._id;
+    if(!newPost){
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+    return res.status(200).json(newPost);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+const uploadPost = async(post) =>{
+  const { description, images, is_Public, bgms, created_at, text_style, schedule_time,user_id } = post;
   try {
     const newPost = await home.postSchema.create({
       description,
@@ -16,20 +38,44 @@ const createPost = async (req, res) => {
       is_Public,
       bgms,
       created_at,
-      text_style
+      text_style,
     });
-    const post_id = newPost._id;
-    await userSchema.userActivitySchema.create({
-      user_id,
-      activity_type,
-      post_id
-    })
-    return res.status(200).json(newPost);
+    if(!newPost){
+      return ;
+    }
+    return post.id;
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
   }
-};
+}
+
+// const createPost = async (req, res) => {
+//   const { description, images, is_Public, bgms, created_at, text_style } = req.body;
+//   const {userId} = req.params;
+//   const user_id = userId;
+//   const activity_type = 'my-posts';
+//   try {
+//     const newPost = await home.postSchema.create({
+//       description,
+//       user_id,
+//       images,
+//       is_Public,
+//       bgms,
+//       created_at,
+//       text_style
+//     });
+//     const post_id = newPost._id;
+//     await userSchema.userActivitySchema.create({
+//       user_id,
+//       activity_type,
+//       post_id
+//     })
+//     return res.status(200).json(newPost);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
 
 const getPostById = async (req, res) => {
   const {postId} = req.params;
@@ -329,5 +375,6 @@ module.exports = {
   searchPost,
   searchChatrooms,
   searchAuthors,
-  podcastsOfTheDay
+  podcastsOfTheDay,
+  uploadPost
 };
