@@ -1,5 +1,6 @@
 const userSchema = require("../model/user-model");
 const bcrypt = require("bcrypt");
+const awsEmailNotification = require('../config/aws-config');
 
 const signUp = async (req, res) => {
   try {
@@ -62,10 +63,13 @@ const signUp = async (req, res) => {
 const forgotPassword = async (req, res) => {
   try {
     const { user_email } = req.body;
+    const origin = req.header('Origin');
     const user = await userSchema.userSchema.findOne({ user_email });
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
+    awsEmailNotification.sendForgotPasswordEmail(user_email, user._id, origin);
+
     return res.status(202).json(user._id);
   } catch (err) {
     return res.status(400).json({ message: "Error occurred" });
