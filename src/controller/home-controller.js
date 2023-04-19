@@ -82,9 +82,10 @@ const getAllPost = async (req, res) => {
 
 const pushCommentsIntoPostById = async (req, res) => {
   console.log(req.body);
-  const { content, userId, postId } = req.params;
+  const { userId, postId } = req.params;
   const user_id = userId;
   const post_id = postId;
+  const {content} = req.body;
   const activity_type = 'post-comment';
   try {
     const newComment = new home.postComments({
