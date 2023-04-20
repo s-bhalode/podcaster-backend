@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.0",
     "nanoid": "^4.0.2",
+    "node-cron": "^3.0.2",
     "nodemon": "^2.0.21",
     "shortid": "^2.2.16",
     "socket.io": "^4.6.1"

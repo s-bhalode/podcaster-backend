@@ -4,13 +4,24 @@ const Podcast = require('../model/podcast-model');
 const createPodcast = async (req, res) => {
   const { userId } = req.params;
   const user_id = userId;
-  const {title, description, duration, image, bgms, file, category, created_at, location, tagged_people,size} = req.body;
-  const audioFile = file;
+  const {
+    title,
+    description,
+    duration,
+    image,
+    bgms,
+    file,
+    category,
+    created_at,
+    location,
+    tagged_people,
+    size,
+    schedule_time,
+  } = req.body;
   try {
-    //creating a podcast (this function is same for all the user)
-    const newPodcast = await Podcast.podcastSchema.create({
+    const newPodcast = await Podcast.schedulePodcastSchema.create({
       title,
-      description, 
+      description,
       duration,
       user_id,
       image,
@@ -20,36 +31,10 @@ const createPodcast = async (req, res) => {
       created_at,
       location,
       tagged_people,
-      size
+      size,
+      schedule_time,
     });
     const podcast_id = newPodcast._id;
-    const activity_type = 'my-podcasts';
-
-    const savedPodcast = await Podcast.podcastSchema.findById(podcast_id);
-    if(savedPodcast.episode.length === 0){
-      const firstEpisode = new Podcast.episodeSchema({
-        title,
-        description,
-        audioFile,
-        duration,
-        size
-      }); 
-      const firstEpisodeId = firstEpisode.id;
-      await firstEpisode.save();
-      
-      savedPodcast.episode.push(firstEpisodeId);
-      const save = await savedPodcast.save();
-      if(save){
-        console.log("New Podcasts First Episode saved");  
-      }
-    }
-    // console.log("length is :",savedPodcast.episode.length)
-    await userSchema.userActivitySchema.create({
-      user_id,
-      activity_type,
-      podcast_id
-    });
-
     return res.status(200).json(newPodcast);
   } catch (err) {
     console.error(err);
@@ -57,9 +42,75 @@ const createPodcast = async (req, res) => {
   }
 };
 
+const uploadPodcast = async (podcast) => {
+  console.log('Podcast is scheduled for id', podcast.id);
+  const {
+    user_id,
+    title,
+    description,
+    duration,
+    image,
+    bgms,
+    file,
+    category,
+    created_at,
+    location,
+    tagged_people,
+    size,
+  } = podcast;
+  // console.log('Persons userID is :-', user_id);
+  const audioFile = file;
+  try {
+    const newPodcast = await Podcast.podcastSchema.create({
+      title,
+      description,
+      duration,
+      user_id,
+      image,
+      bgms,
+      file,
+      category,
+      created_at,
+      location,
+      tagged_people,
+      size,
+    });
+    const podcast_id = newPodcast._id;
+    const activity_type = 'my-podcasts';
+
+    const savedPodcast = await Podcast.podcastSchema.findById(podcast_id);
+    if (savedPodcast.episode.length === 0) {
+      const firstEpisode = new Podcast.episodeSchema({
+        title,
+        description,
+        audioFile,
+        duration,
+        size,
+      });
+      const firstEpisodeId = firstEpisode.id;
+      await firstEpisode.save();
+
+      savedPodcast.episode.push(firstEpisodeId);
+      const save = await savedPodcast.save();
+      if (save) {
+        console.log('New Podcasts First Episode saved');
+      }
+    }
+    await userSchema.userActivitySchema.create({
+      user_id,
+      activity_type,
+      podcast_id,
+    });
+
+    return podcast.id;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const getPodcastById = async (req, res) => {
   const { podcastId } = req.params;
-  
+
   try {
     // Find the podcast by ID
     const podcast = await Podcast.podcastSchema
@@ -112,9 +163,11 @@ const getAllPodcast = async (req, res) => {
 const getPodcastbyCategory = async (req, res) => {
   const { category } = req.params;
   try {
-    const podcastCategories = await Podcast.podcastSchema.find({
-      category: category,
-    }).populate('user_id');
+    const podcastCategories = await Podcast.podcastSchema
+      .find({
+        category: category,
+      })
+      .populate('user_id');
     if (!podcastCategories) {
       return res
         .status(404)
@@ -180,8 +233,8 @@ const pushCommentsIntoPodcastbyId = async (req, res) => {
     await userSchema.userActivitySchema.create({
       user_id,
       activity_type,
-      podcast_id
-    })
+      podcast_id,
+    });
     const savedComment = await newComment.save();
     const podcast = await Podcast.podcastSchema.findById(podcastId);
     if (!podcast) {
@@ -211,8 +264,8 @@ const pushLikesIntoPodcastbyId = async (req, res) => {
     await userSchema.userActivitySchema.create({
       user_id,
       activity_type,
-      podcast_id
-    })
+      podcast_id,
+    });
 
     const savedLikes = await newLikes.save();
     const podcast = await Podcast.podcastSchema.findById(podcastId);
@@ -242,7 +295,7 @@ const createEpisodes = async (req, res) => {
       description,
       audioFile,
       duration,
-      size
+      size,
     });
     const episode_id = newEpisode._id;
     const savedEpisode = await newEpisode.save();
@@ -256,9 +309,9 @@ const createEpisodes = async (req, res) => {
         user_id,
         activity_type,
         podcast_id,
-        episode_id
-      })
-      
+        episode_id,
+      });
+
       const updatedPodcast = await podcast.save();
       return res.status(200).json(updatedPodcast);
     }
@@ -269,31 +322,34 @@ const createEpisodes = async (req, res) => {
 };
 
 const getEpisodeById = async (req, res) => {
-  try{
-    const {episodeId} = req.params;
-    const episode = await Podcast.episodeSchema.findOne({_id : episodeId});
-    if(!episode){
-      return res.status(404).json("Episode not found");
+  try {
+    const { episodeId } = req.params;
+    const episode = await Podcast.episodeSchema.findOne({ _id: episodeId });
+    if (!episode) {
+      return res.status(404).json('Episode not found');
     }
     return res.status(200).json(episode);
-
-  }catch(err){
+  } catch (err) {
     console.log(err);
-    return res.status(400).json("Error while getting episode data");
+    return res.status(400).json('Error while getting episode data');
   }
-}
+};
 const getRecentEpisodes = async (req, res) => {
-  try{
-    const episode = await Podcast.episodeSchema.find().limit(20).sort({created_at: 'desc'}).exec();
-    if(!episode){
-      return res.status(404).json("Episodes not found");
+  try {
+    const episode = await Podcast.episodeSchema
+      .find()
+      .limit(20)
+      .sort({ created_at: 'desc' })
+      .exec();
+    if (!episode) {
+      return res.status(404).json('Episodes not found');
     }
     return res.status(200).json(episode);
-  }catch(err){
+  } catch (err) {
     console.log(err);
-    return res.status(400).json("Error while getting episode data");
+    return res.status(400).json('Error while getting episode data');
   }
-}
+};
 const getUserPodcastData = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -310,18 +366,20 @@ const getUserPodcastData = async (req, res) => {
 };
 
 const getAllPodcastAuthors = async (req, res) => {
-  try{
-    const authors = await Podcast.podcastSchema.find({}, 'user_id').populate('user_id');
-    
-    if(!authors){
-      return res.status(500).json("Internal server error");
+  try {
+    const authors = await Podcast.podcastSchema
+      .find({}, 'user_id')
+      .populate('user_id');
+
+    if (!authors) {
+      return res.status(500).json('Internal server error');
     }
     return res.status(202).json(authors);
-  }catch(err){
+  } catch (err) {
     console.log(err);
-    return res.status(400).json("Error while retrieving authors!");
+    return res.status(400).json('Error while retrieving authors!');
   }
-}
+};
 
 module.exports = {
   getPodcastById,
@@ -335,5 +393,6 @@ module.exports = {
   getUserPodcastData,
   getAllPodcastAuthors,
   getEpisodeById,
-  getRecentEpisodes
+  getRecentEpisodes,
+  uploadPodcast,
 };
