@@ -1,6 +1,6 @@
 const userSchema = require("../model/user-model");
 const bcrypt = require("bcrypt");
-const awsEmailNotification = require('../config/aws-config');
+const awsEmailNotification = require('../config/ses');
 
 const signUp = async (req, res) => {
   try {
