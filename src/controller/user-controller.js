@@ -366,6 +366,24 @@ const podcastRecommendation = async (req, res) => {
   }
 }
 
+const postRecommendation = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const user = await userSchema.userSchema.findById(userId);
+    const userInterests = user.interests;
+
+    const recommPosts = await home.postSchema.find({category: {$in: userInterests}});
+    console.log(recommPosts);
+
+    const sortedRecommPosts = recommPosts.sort((a, b) => b.likes.length - a.likes.length);
+
+    return res.status(200).json(sortedRecommPosts);
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({ message: 'Error occurred while recommending posts' });
+  }
+}
+
 const addUserInterest = async (req, res) => {
   try{
     const {userId} = req.params;
@@ -402,5 +420,6 @@ module.exports = {
   removeFromSaved,
   removeFromFavorites,
   addUserInterest,
-  podcastRecommendation
+  podcastRecommendation,
+  postRecommendation
 };
