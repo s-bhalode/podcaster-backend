@@ -49,6 +49,9 @@ router.post('/api/:userId/add-interest', userController.addUserInterest);
 // for podcast recommendations
 router.get('/api/:userId/podcast-recommendations', userController.podcastRecommendation);
 
+// for qoutes recommendations
+router.get('/api/:userId/post-recommendations', userController.postRecommendation);
+
 
 
 

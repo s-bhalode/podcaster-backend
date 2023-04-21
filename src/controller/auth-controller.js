@@ -51,7 +51,7 @@ const signUp = async (req, res) => {
           .status(200)
           .json({
             message: "User registered successfully!",
-            newUser: savedUserRes,
+            user: savedUserRes,
           });
       }
     });
