@@ -18,7 +18,7 @@ const podcastSchema = mongoose.model(
     },
     size: {
       type: String,
-      required: true
+      // required: true
     },
     created_at: {
       type: Date,

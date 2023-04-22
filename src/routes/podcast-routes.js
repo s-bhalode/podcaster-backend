@@ -39,4 +39,7 @@ router.get('/api/get-episode/:episodeId', podcastController.getEpisodeById);
 // to get 20 recent episodes 
 router.get('/api/get-twenty-recent-episode', podcastController.getRecentEpisodes);
 
+// unlike podcast
+router.post('/api/podcast/unlike/:userId/:podcastId',podcastController.unlikePodcastById)
+
 module.exports = router;
