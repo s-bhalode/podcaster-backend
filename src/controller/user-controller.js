@@ -354,8 +354,8 @@ const podcastRecommendation = async (req, res) => {
     const user = await userSchema.userSchema.findById(userId);
     const userInterests = user.interests;
 
-    const recommPodcasts = await Podcast.podcastSchema.find({category: {$in: userInterests}});
-    console.log(recommPodcasts);
+    const recommPodcasts = await Podcast.podcastSchema.find({category: {$in: userInterests}}).populate('episode');
+    // console.log(recommPodcasts);
     const sortedRecommPodcasts = recommPodcasts.sort((a, b) => b.likes.length - a.likes.length);
 
     // return res.status(200).json(sortedRecommPodcasts.slice(0, 10));
