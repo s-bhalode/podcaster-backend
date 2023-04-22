@@ -251,7 +251,7 @@ const pushCommentsIntoPodcastbyId = async (req, res) => {
 };
 
 const pushLikesIntoPodcastbyId = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { userId, podcastId } = req.params;
   const podcast_id = podcastId;
   const user_id = userId;
@@ -380,6 +380,46 @@ const getAllPodcastAuthors = async (req, res) => {
     return res.status(400).json('Error while retrieving authors!');
   }
 };
+const unlikePodcastById = async (req, res) => {
+  const { userId, podcastId } = req.params;
+
+  try {
+    const podcast = await Podcast.podcastSchema
+      .findById(podcastId)
+      .populate({
+        path: 'likes',
+        match: { user_id: userId },
+      })
+      .exec();
+    // console.log(podcast.likes[0]._id);
+    if (podcast.likes.length !== 0) {
+      const likeId = podcast.likes[0]._id;
+      // console.log('like Id =', likeId);
+      const index = podcast.likes.findIndex((like) => like._id === likeId);
+      // console.log('index :-', index);
+      if (index !== -1) {
+        await Podcast.podcastSchema.findByIdAndUpdate(
+          podcastId,
+          { $pull: { likes: likeId } },
+          { new: true }
+        );
+        const unlike = await Podcast.podcastLikes.findByIdAndDelete(likeId);
+        return res.status(200).json({message : "Podcast unliked succesfully"});
+      } else {
+        return res
+          .status(404)
+          .json({ message: 'User has not liked that podcast' });
+      }
+    } else {
+      return res
+        .status(404)
+        .json({ message: 'User has not liked that podcast' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 module.exports = {
   getPodcastById,
@@ -395,4 +435,5 @@ module.exports = {
   getEpisodeById,
   getRecentEpisodes,
   uploadPodcast,
+  unlikePodcastById,
 };
