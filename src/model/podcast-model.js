@@ -27,9 +27,9 @@ const podcastSchema = mongoose.model(
     bgms: {
       type: String,
     },
-    category: {
+    category: [{
       type: String,
-    },
+    }],
     duration: {
       type: String,
       // required: true,

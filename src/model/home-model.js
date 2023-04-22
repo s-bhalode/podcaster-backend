@@ -21,6 +21,13 @@ const postSchema = mongoose.model(
         type: String,
       },
     ],
+    location: {
+      type: String,
+    },
+    tagged_people: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    }],
     is_Public: {
       type: Boolean,
       default: true,
@@ -29,6 +36,9 @@ const postSchema = mongoose.model(
       type: Date,
       default: Date.now, 
     },
+    category: [{
+      type: String,
+    }],
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,

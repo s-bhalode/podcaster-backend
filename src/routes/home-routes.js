@@ -40,6 +40,9 @@ router.get('/api/authors/search/:term',homeController.searchAuthors);
 // get podcasts of the day
 router.get('/api/podcast-of-the-day', homeController.podcastsOfTheDay);
 
+// unlike post api
+router.post('/api/post/unlike/:postId/:userId',homeController.unlikePostById)
+
 
 
 module.exports = router; 

@@ -362,6 +362,47 @@ const podcastsOfTheDay = async (req, res) => {
     }
 }
 
+const unlikePostById = async (req, res) => {
+  const { userId, postId } = req.params;
+
+  try {
+    const post = await home.postSchema
+      .findById(postId)
+      .populate({
+        path: 'likes',
+        match: { user_id: userId },
+      })
+      .exec();
+    // console.log(podcast.likes[0]._id);
+    if (post.likes.length !== 0) {
+      const likeId = post.likes[0]._id;
+      // console.log('like Id =', likeId);
+      const index = post.likes.findIndex((like) => like._id === likeId);
+      // console.log('index :-', index);
+      if (index !== -1) {
+        await home.postSchema.findByIdAndUpdate(
+          postId,
+          { $pull: { likes: likeId } },
+          { new: true }
+        );
+        const unlike = await home.postLikes.findByIdAndDelete(likeId);
+        return res.status(200).json({message : "post unliked succesfully"});
+      } else {
+        return res
+          .status(404)
+          .json({ message: 'User has not liked that post' });
+      }
+    } else {
+      return res
+        .status(404)
+        .json({ message: 'User has not liked that post' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 module.exports = {
   createPost,
@@ -376,5 +417,6 @@ module.exports = {
   searchChatrooms,
   searchAuthors,
   podcastsOfTheDay,
-  uploadPost
+  uploadPost,
+  unlikePostById
 };
