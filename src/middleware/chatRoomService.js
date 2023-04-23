@@ -119,26 +119,29 @@ const getUserBySocketId = async (params, callback) => {
 //     return room;
 // }
 
-// const getAllRooms = async (types) => {
-//     const rooms = await chatRoomSchema.find({roomType: {$in: types}})
-//         .populate('speakers')
-//         .populate('ownerId')
-//         .exec();
+const getAllRooms = async (types) => {
+    const rooms = await chatRoomSchema.find({roomType: {$in: types}})
+        .populate({
+            path: 'speakers',
+            select: '_id user_name is_public user_profile_pic'
+        })
+        .populate('hostId')
+        .exec();
 
-//     return rooms;
-// }
+    return rooms;
+}
 
-// const getRoom = async (roomId) => {
-//     const room = await chatRoomSchema.findOne({_id: roomId});
+const getRoom = async (roomId) => {
+    const room = await chatRoomSchema.findOne({_id: roomId});
 
-//     return room;
-// }
+    return room;
+}
 
 
 module.exports = {
     // createChatRoom,
-    // getAllRooms,
-    // getRoom
+    getAllRooms,
+    getRoom,
 
     startMeeting,
     joinMeeting,
