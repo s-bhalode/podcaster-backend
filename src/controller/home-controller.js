@@ -89,6 +89,7 @@ const getPostById = async (req, res) => {
         populate: {
           path: 'user_id',
         },
+        options: { sort: { created_at: 'desc' } }
       });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
@@ -113,6 +114,7 @@ const getAllPost = async (req, res) => {
         populate: {
           path: 'user_id',
         },
+        options: { sort: { created_at: 'desc' } }
       });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
