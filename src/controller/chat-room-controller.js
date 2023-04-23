@@ -2,12 +2,14 @@ const chatRoomService = require('../middleware/chatRoomService');
 
 
 const startMeeting = (req, res, next) => {
-    const {hostId, hostName} = req.body;
+    const {hostId, hostName, roomType, chatTopic} = req.body;
 
     let model = {
+        chatTopic: chatTopic,
         hostId : hostId,
         hostName : hostName,
-        startTime: Date.now()
+        startTime: Date.now(),
+        roomType: roomType
     };
 
     chatRoomService.startMeeting(model, (err, result) => {
@@ -20,7 +22,7 @@ const startMeeting = (req, res, next) => {
 
 
 const checkMeetingExists = (req, res, next) => {
-    const {meetingId} = req.query;
+    const {meetingId} = req.params;
 
     chatRoomService.checkMeetingExists(meetingId, (err, result) => {
         if(err){
@@ -31,7 +33,7 @@ const checkMeetingExists = (req, res, next) => {
 }
 
 const getAllMeetingUsers = (req, res, next) => {
-    const {meetingId} = req.query;
+    const {meetingId} = req.params;
 
     chatRoomService.getAllMeetingUsers(meetingId, (err, result) => {
         if(err){
@@ -58,23 +60,23 @@ const getAllMeetingUsers = (req, res, next) => {
 //     return res.json(room);
 // }
 
-// const chatRoomIndex = async (req, res) => {
-//     const rooms = await chatRoomService.getAllRooms(['public']);
+const chatRoomIndex = async (req, res) => {
+    const rooms = await chatRoomService.getAllRooms(['public']);
     
-//     return res.json(rooms);
-// }
+    return res.json(rooms);
+}
 
-// const showChatRoom = async (req, res) => {
-//     const room = await chatRoomService.getRoom(req.params.roomId);
+const showChatRoom = async (req, res) => {
+    const room = await chatRoomService.getRoom(req.params.roomId);
 
-//     return res.json(room);
-// }
+    return res.json(room);
+}
 
 
 module.exports = {
     // createChatRoom,
-    // chatRoomIndex,
-    // showChatRoom
+    chatRoomIndex,
+    showChatRoom,
 
     startMeeting,
     checkMeetingExists,
