@@ -354,7 +354,8 @@ const podcastRecommendation = async (req, res) => {
     const user = await userSchema.userSchema.findById(userId);
     const userInterests = user.interests;
 
-    const recommPodcasts = await Podcast.podcastSchema.find({category: {$in: userInterests}}).populate('episode');
+    const recommPodcasts = await Podcast.podcastSchema.find({category: {$in: userInterests}}).populate('episode')
+    .populate({ path: 'user_id', select: 'user_name user_email user_role user_profile_pic' });
     // console.log(recommPodcasts);
     const sortedRecommPodcasts = recommPodcasts.sort((a, b) => b.likes.length - a.likes.length);
 
@@ -372,7 +373,8 @@ const postRecommendation = async (req, res) => {
     const user = await userSchema.userSchema.findById(userId);
     const userInterests = user.interests;
 
-    const recommPosts = await home.postSchema.find({category: {$in: userInterests}});
+    const recommPosts = await home.postSchema.find({category: {$in: userInterests}})
+    .populate({ path: 'user_id', select: 'user_name user_email user_role user_profile_pic' });
     console.log(recommPosts);
 
     const sortedRecommPosts = recommPosts.sort((a, b) => b.likes.length - a.likes.length);

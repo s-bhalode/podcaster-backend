@@ -352,7 +352,8 @@ const searchAuthors = async (req, res) => {
 
 const podcastsOfTheDay = async (req, res) => {
     try{
-      const podcasts = await Podcast.podcastSchema.find().sort({'likes.length': -1}).populate('episode').limit(1);
+      const podcasts = await Podcast.podcastSchema.find().sort({'likes.length': -1}).populate('episode').limit(1)
+      .populate({ path: 'user_id', select: 'user_name user_email user_role user_profile_pic' });
       if(!podcasts){
         return res.status(500).json({ message: 'OOPs! something went wrong' });
       }
