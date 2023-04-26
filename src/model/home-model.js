@@ -14,7 +14,7 @@ const postSchema = mongoose.model(
       type: String,
     },
     text_style: {
-      type: String,
+      type: Object,
     },
     images: [
       {
