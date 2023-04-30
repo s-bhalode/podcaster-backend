@@ -90,7 +90,7 @@ const schedulePostSchema = mongoose.model(
       type: String,
     },
     text_style: {
-      type: String,
+      type: Object,
     },
     images: [
       {
@@ -107,6 +107,7 @@ const schedulePostSchema = mongoose.model(
     },
     schedule_time: {
       type: Date,
+      default: Date.now
     },
     likes: [
       {

@@ -4,6 +4,7 @@ const Podcast = require('../model/podcast-model');
 const Chatroom = require('../model/chat-room-model');
 
 const createPost =async (req,res) =>{
+  console.log(req.body);
   const { description, images, is_Public, bgms, created_at, text_style, schedule_time } = req.body;
   const {userId} = req.params;
   const user_id = userId;
