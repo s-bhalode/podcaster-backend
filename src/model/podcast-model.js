@@ -93,7 +93,39 @@ const episodeSchema = mongoose.model(
     size: {
       type: String,
       required: true
-    }
+    },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'episode-likes',
+      },
+    ],
+    comments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'episode-comments',
+      },
+    ],
+  })
+);
+const episodeLikes = mongoose.model(
+  'episode-likes',
+  new mongoose.Schema({
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    },
+  })
+);
+const episodeComments = mongoose.model(
+  'episode-comments',
+  new mongoose.Schema({
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    },
+    content: { type: String },
+    created_at: { type: Date, default: Date.now },
   })
 );
 
@@ -197,4 +229,6 @@ module.exports = {
   podcastLikes,
   podcastComments,
   schedulePodcastSchema,
+  episodeLikes,
+  episodeComments
 };

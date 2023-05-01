@@ -29,7 +29,6 @@ router.post('/api/podcast/like/:userId/:podcastId',podcastController.pushLikesIn
 // getting the particular user podcast data 
 router.get('/api/user/:userId/podcast',podcastController.getUserPodcastData)
 
-
 // to get all the required authors
 router.get('/api/get-all-authors', podcastController.getAllPodcastAuthors);
 
@@ -40,6 +39,18 @@ router.get('/api/get-episode/:episodeId', podcastController.getEpisodeById);
 router.get('/api/get-twenty-recent-episode', podcastController.getRecentEpisodes);
 
 // unlike podcast
-router.post('/api/podcast/unlike/:userId/:podcastId',podcastController.unlikePodcastById)
+router.post('/api/podcast/unlike/:userId/:podcastId',podcastController.unlikePodcastById);
+
+// episode like api
+router.post('/api/podcast/episode/like/:userId/:episodeId',podcastController.pushLikesIntoEpisodebyId)
+
+// unlike episode api
+router.post('/api/podcast/episode/unlike/:userId/:episodeId',podcastController.unlikeEpisodeById);
+
+// push comments into episode
+router.post('/api/podcast/episode/comment/:userId/:episodeId',podcastController.pushCommentsIntoEpisodebyId);
+
+// update Episode by UserId and EpisodeId
+router.put('/api/podcast/episode/update-episode/:episodeId',podcastController.updateEpisodeById);
 
 module.exports = router;

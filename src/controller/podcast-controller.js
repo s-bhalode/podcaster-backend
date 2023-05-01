@@ -116,14 +116,24 @@ const getPodcastById = async (req, res) => {
     const podcast = await Podcast.podcastSchema
       .findById(podcastId)
       .populate('user_id')
-      .populate('episode')
+      .populate({
+        path:'episode',
+        populate: {
+          path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+        },
+      })
       .populate('likes')
       .populate({
         path: 'comments',
         populate: {
           path: 'user_id',
         },
-        options: { sort: { created_at: 'desc' } }
+        options: { sort: { created_at: 'desc' } },
       });
     if (!podcast) {
       return res.status(404).json({ error: 'Podcast not found' });
@@ -142,14 +152,25 @@ const getAllPodcast = async (req, res) => {
     const podcast = await Podcast.podcastSchema
       .find()
       .populate('user_id')
-      .populate('episode')
+      .populate({
+        path:'episode',
+        populate: {
+          path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+        },
+      })
       .populate('likes')
       .populate({
         path: 'comments',
         populate: {
           path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic'
         },
-        options: { sort: { created_at: 'desc' } }
+        options: { sort: { created_at: 'desc' } },
       });
     if (!podcast) {
       return res.status(404).json({ error: 'Podcast not found' });
@@ -169,7 +190,27 @@ const getPodcastbyCategory = async (req, res) => {
       .find({
         category: category,
       })
-      .populate('user_id');
+      .populate('user_id')
+      .populate({
+        path:'episode',
+        populate: {
+          path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+        },
+      })
+      .populate('likes')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic'
+        },
+        options: { sort: { created_at: 'desc' } },
+      });
     if (!podcastCategories) {
       return res
         .status(404)
@@ -199,19 +240,14 @@ const updatePodcastById = async (req, res) => {
       .json({ message: 'You are not authorized to update this podcast' });
   } else {
     try {
-      const updatedPodcast = await Podcast.podcastSchema.findByIdAndUpdate(
-        podcastId,
-        {
-          title,
-          description,
-          duration,
-          image,
-          bgms,
-          file,
-          category,
-        },
-        { new: true }
-      );
+      if (title) podcast.title = title;
+      if (description) podcast.description = description;
+      if (duration) podcast.duration = duration;
+      if (image) podcast.image = image;
+      if (bgms) podcast.bgms = bgms;
+      if (file) podcast.file = file;
+      if (category) podcast.category = category;
+      const updatedPodcast = await podcast.save();
       return res.status(200).json(updatedPodcast);
     } catch (err) {
       console.error(err);
@@ -326,7 +362,15 @@ const createEpisodes = async (req, res) => {
 const getEpisodeById = async (req, res) => {
   try {
     const { episodeId } = req.params;
-    const episode = await Podcast.episodeSchema.findOne({ _id: episodeId });
+    const episode = await Podcast.episodeSchema.findOne({ _id: episodeId })
+    .populate({
+      path: 'comments',
+        populate: {
+          path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic',
+        },
+        options: { sort: { created_at: 'desc' } },
+    });
     if (!episode) {
       return res.status(404).json('Episode not found');
     }
@@ -342,6 +386,14 @@ const getRecentEpisodes = async (req, res) => {
       .find()
       .limit(20)
       .sort({ created_at: 'desc' })
+      .populate({
+        path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+      })
       .exec();
     if (!episode) {
       return res.status(404).json('Episodes not found');
@@ -406,7 +458,7 @@ const unlikePodcastById = async (req, res) => {
           { new: true }
         );
         const unlike = await Podcast.podcastLikes.findByIdAndDelete(likeId);
-        return res.status(200).json({message : "Podcast unliked succesfully"});
+        return res.status(200).json({ message: 'Podcast unliked succesfully' });
       } else {
         return res
           .status(404)
@@ -420,6 +472,112 @@ const unlikePodcastById = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const pushLikesIntoEpisodebyId = async (req, res) => {
+  const { userId, episodeId } = req.params;
+  const user_id = userId;
+  try {
+    const newLike = new Podcast.episodeLikes({
+      user_id,
+    });
+    const savedLike = await newLike.save();
+    const episode = await Podcast.episodeSchema.findById(episodeId);
+    if (!episode) {
+      return res.status(404).json({ message: 'Episode not found' });
+    } else {
+      episode.likes.push(savedLike._id);
+      const pushedLikes = await episode.save();
+      return res.status(200).json(pushedLikes);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const pushCommentsIntoEpisodebyId = async (req, res) => {
+  const { userId, episodeId } = req.params;
+  const user_id = userId;
+  const { content } = req.body;
+  try {
+    const newComment = new Podcast.episodeComments({
+      user_id,
+      content,
+    });
+    const savedComment = await newComment.save();
+    const episode = await Podcast.episodeSchema.findById(episodeId);
+    if (!episode) {
+      return res.status(404).json({ message: 'Podcast not found' });
+    } else {
+      episode.comments.push(savedComment._id);
+      const updatedEpisode = await episode.save();
+      return res.status(200).json(updatedEpisode);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const unlikeEpisodeById = async (req, res) => {
+  const { userId, episodeId } = req.params;
+  try {
+    const episode = await Podcast.episodeSchema
+      .findById(episodeId)
+      .populate({
+        path: 'likes',
+        match: { user_id: userId },
+      })
+      .exec();
+    if (episode.likes.length !== 0) {
+      const likeId = episode.likes[0]._id;
+      const index = episode.likes.findIndex((like) => like._id === likeId);
+      if (index !== -1) {
+        await Podcast.episodeSchema.findByIdAndUpdate(
+          episodeId,
+          { $pull: { likes: likeId } },
+          { new: true }
+        );
+        const unlike = await Podcast.episodeLikes.findByIdAndDelete(likeId);
+        return res.status(200).json({ message: 'Episode unliked succesfully' });
+      } else {
+        return res
+          .status(404)
+          .json({ message: 'User has not liked that Episode' });
+      }
+    } else {
+      return res
+        .status(404)
+        .json({ message: 'User has not liked that Episode' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const updateEpisodeById = async (req, res) => {
+  const { title, description, duration, size, audioFile } = req.body;
+  const { episodeId } = req.params;
+
+  const episode = await Podcast.episodeSchema.findById(episodeId);
+  if (!episode) {
+    return res.status(404).json({ message: 'Episode not found' });
+  } else {
+    try {
+      if (title) episode.title = title;
+      if (description) episode.description = description;
+      if (duration) episode.duration = duration;
+      if (size) episode.size = size;
+      if (audioFile) episode.audioFile = audioFile;
+      const updatedEpisode = await episode.save();
+      return res.status(200).json(updatedEpisode);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   }
 };
 
@@ -438,4 +596,8 @@ module.exports = {
   getRecentEpisodes,
   uploadPodcast,
   unlikePodcastById,
+  pushLikesIntoEpisodebyId,
+  unlikeEpisodeById,
+  pushCommentsIntoEpisodebyId,
+  updateEpisodeById,
 };
