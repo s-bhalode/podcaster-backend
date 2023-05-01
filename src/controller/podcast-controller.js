@@ -116,7 +116,17 @@ const getPodcastById = async (req, res) => {
     const podcast = await Podcast.podcastSchema
       .findById(podcastId)
       .populate('user_id')
-      .populate('episode')
+      .populate({
+        path:'episode',
+        populate: {
+          path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+        },
+      })
       .populate('likes')
       .populate({
         path: 'comments',
@@ -142,12 +152,23 @@ const getAllPodcast = async (req, res) => {
     const podcast = await Podcast.podcastSchema
       .find()
       .populate('user_id')
-      .populate('episode')
+      .populate({
+        path:'episode',
+        populate: {
+          path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+        },
+      })
       .populate('likes')
       .populate({
         path: 'comments',
         populate: {
           path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic'
         },
         options: { sort: { created_at: 'desc' } },
       });
@@ -169,7 +190,27 @@ const getPodcastbyCategory = async (req, res) => {
       .find({
         category: category,
       })
-      .populate('user_id');
+      .populate('user_id')
+      .populate({
+        path:'episode',
+        populate: {
+          path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+        },
+      })
+      .populate('likes')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic'
+        },
+        options: { sort: { created_at: 'desc' } },
+      });
     if (!podcastCategories) {
       return res
         .status(404)
@@ -321,7 +362,15 @@ const createEpisodes = async (req, res) => {
 const getEpisodeById = async (req, res) => {
   try {
     const { episodeId } = req.params;
-    const episode = await Podcast.episodeSchema.findOne({ _id: episodeId });
+    const episode = await Podcast.episodeSchema.findOne({ _id: episodeId })
+    .populate({
+      path: 'comments',
+        populate: {
+          path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic',
+        },
+        options: { sort: { created_at: 'desc' } },
+    });
     if (!episode) {
       return res.status(404).json('Episode not found');
     }
@@ -337,6 +386,14 @@ const getRecentEpisodes = async (req, res) => {
       .find()
       .limit(20)
       .sort({ created_at: 'desc' })
+      .populate({
+        path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+      })
       .exec();
     if (!episode) {
       return res.status(404).json('Episodes not found');
