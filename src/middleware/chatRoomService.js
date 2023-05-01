@@ -123,7 +123,7 @@ const getAllRooms = async (types) => {
     const rooms = await chatRoomSchema.find({roomType: {$in: types}})
         .populate({
             path: 'speakers',
-            select: '_id user_name is_public user_profile_pic'
+            select: '_id user_name is_public user_profile_pic user_email'
         })
         .populate('hostId')
         .exec();
@@ -142,7 +142,6 @@ module.exports = {
     // createChatRoom,
     getAllRooms,
     getRoom,
-
     startMeeting,
     joinMeeting,
     getAllMeetingUsers,
