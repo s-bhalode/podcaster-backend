@@ -385,7 +385,15 @@ const postRecommendation = async (req, res) => {
     const userInterests = user.interests;
 
     const recommPosts = await home.postSchema.find({category: {$in: userInterests}})
-    .populate({ path: 'user_id', select: 'user_name user_email user_role user_profile_pic' });
+    .populate({ path: 'user_id', select: 'user_name user_email user_role user_profile_pic' })
+    .populate('likes')
+    .populate({
+      path: 'comments',
+      populate: {
+        path: 'user_id',
+      },
+      options: { sort: { created_at: 'desc' } },
+    });
     console.log(recommPosts);
 
     const sortedRecommPosts = recommPosts.sort((a, b) => b.likes.length - a.likes.length);
