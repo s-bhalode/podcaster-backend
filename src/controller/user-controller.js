@@ -13,10 +13,10 @@ const getallUsers = async (req, res) => {
 };
 
 const getUserbyId = async (req, res) => {
-  const { userId } = req.params;
+  const { id } = req.params;
   try {
     const user = await userSchema.userSchema
-      .findById(req.params.id)
+      .findById(id)
       .populate({ path: 'following', select: 'user_name user_email user_role user_profile_pic' })
       .populate({ path: 'followers', select: 'user_name user_email user_role user_profile_pic' })
       .populate({
@@ -30,11 +30,11 @@ const getUserbyId = async (req, res) => {
         populate: {
           path: 'episode podcasts posts',
         },
-      })
-      .exec();
-      const podcasts = await Podcast.podcastSchema.find({ user_id: userId });
-      const post = await home.postSchema.find({ user_id: userId });
+      }); 
       
+      const podcasts = await Podcast.podcastSchema.find({ user_id: id });
+      const post = await home.postSchema.find({ user_id: id });
+      console.log(post);
       return res.status(200).json({user,post,podcasts});
       
   } catch (err) {
