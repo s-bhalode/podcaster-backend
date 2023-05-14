@@ -82,6 +82,7 @@ const uploadPodcast = async (podcast) => {
     if (savedPodcast.episode.length === 0) {
       const firstEpisode = new Podcast.episodeSchema({
         title,
+        bgms,
         description,
         audioFile,
         duration,
@@ -321,7 +322,7 @@ const pushLikesIntoPodcastbyId = async (req, res) => {
 };
 
 const createEpisodes = async (req, res) => {
-  const { title, description, audioFile, duration, size } = req.body;
+  const { title, description, audioFile, duration, size, bgms } = req.body;
   console.log(req.params);
   const { podcastId, userId } = req.params;
   const user_id = userId;
@@ -334,6 +335,7 @@ const createEpisodes = async (req, res) => {
       audioFile,
       duration,
       size,
+      bgms,
     });
     const episode_id = newEpisode._id;
     const savedEpisode = await newEpisode.save();
@@ -559,7 +561,7 @@ const unlikeEpisodeById = async (req, res) => {
 };
 
 const updateEpisodeById = async (req, res) => {
-  const { title, description, duration, size, audioFile } = req.body;
+  const { title, description, duration, size, audioFile, bgms } = req.body;
   const { episodeId } = req.params;
 
   const episode = await Podcast.episodeSchema.findById(episodeId);
@@ -572,6 +574,7 @@ const updateEpisodeById = async (req, res) => {
       if (duration) episode.duration = duration;
       if (size) episode.size = size;
       if (audioFile) episode.audioFile = audioFile;
+      if (bgms) episode.bgms = bgms;
       const updatedEpisode = await episode.save();
       return res.status(200).json(updatedEpisode);
     } catch (err) {
