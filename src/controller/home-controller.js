@@ -132,7 +132,7 @@ const getAllPost = async (req, res) => {
           path: 'user_id',
         },
         options: { sort: { created_at: 'desc' } },
-      });
+      }).sort({ created_at: -1 });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     } else {

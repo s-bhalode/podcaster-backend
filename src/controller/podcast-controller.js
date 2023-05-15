@@ -172,7 +172,7 @@ const getAllPodcast = async (req, res) => {
           select: 'user_name user_email user_role user_profile_pic'
         },
         options: { sort: { created_at: 'desc' } },
-      });
+      }).sort({ created_at: -1 });
     if (!podcast) {
       return res.status(404).json({ error: 'Podcast not found' });
     } else {
