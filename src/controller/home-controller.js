@@ -1,11 +1,19 @@
-const userSchema = require('../model/user-model');
-const home = require('../model/home-model');
-const Podcast = require('../model/podcast-model');
-const Chatroom = require('../model/chat-room-model');
+const userSchema = require("../model/user-model");
+const home = require("../model/home-model");
+const Podcast = require("../model/podcast-model");
+const Chatroom = require("../model/chat-room-model");
 
-const createPost =async (req,res) =>{
-  const { description, images, is_Public, bgms, created_at, text_style, schedule_time } = req.body;
-  const {userId} = req.params;
+const createPost = async (req, res) => {
+  const {
+    description,
+    images,
+    is_Public,
+    bgms,
+    created_at,
+    text_style,
+    schedule_time,
+  } = req.body;
+  const { userId } = req.params;
   const user_id = userId;
   try {
     const newPost = await home.schedulePostSchema.create({
@@ -16,20 +24,29 @@ const createPost =async (req,res) =>{
       bgms,
       created_at,
       text_style,
-      schedule_time
+      schedule_time,
     });
     const post_id = newPost._id;
-    if(!newPost){
-      return res.status(500).json({ message: 'Internal server error' });
+    if (!newPost) {
+      return res.status(500).json({ message: "Internal server error" });
     }
     return res.status(200).json(newPost);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
-}
-const uploadPost = async(post) =>{
-  const { description, images, is_Public, bgms, created_at, text_style, schedule_time,user_id } = post;
+};
+const uploadPost = async (post) => {
+  const {
+    description,
+    images,
+    is_Public,
+    bgms,
+    created_at,
+    text_style,
+    schedule_time,
+    user_id,
+  } = post;
   try {
     const newPost = await home.postSchema.create({
       description,
@@ -40,14 +57,14 @@ const uploadPost = async(post) =>{
       created_at,
       text_style,
     });
-    if(!newPost){
-      return ;
+    if (!newPost) {
+      return;
     }
     return post.id;
   } catch (err) {
     console.error(err);
   }
-}
+};
 
 // const createPost = async (req, res) => {
 //   const { description, images, is_Public, bgms, created_at, text_style } = req.body;
@@ -78,53 +95,51 @@ const uploadPost = async(post) =>{
 // };
 
 const getPostById = async (req, res) => {
-  const {postId} = req.params;
+  const { postId } = req.params;
   try {
     const post = await home.postSchema
       .findById(postId)
-      .populate('user_id')
-      .populate('likes')
+      .populate("user_id")
+      .populate("likes")
       .populate({
-        path: 'comments',
+        path: "comments",
         populate: {
-          path: 'user_id',
+          path: "user_id",
         },
-        options: { sort: { created_at: 'desc' } }
+        options: { sort: { created_at: "desc" } },
       });
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
-    }else{
+      return res.status(404).json({ error: "Post not found" });
+    } else {
       return res.status(200).json(post);
     }
-    
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const getAllPost = async (req, res) => {
   try {
     const post = await home.postSchema
-      .find({is_Public : true})
-      .populate('user_id')
-      .populate('likes')
+      .find({ is_Public: true })
+      .populate("user_id")
+      .populate("likes")
       .populate({
-        path: 'comments',
+        path: "comments",
         populate: {
-          path: 'user_id',
+          path: "user_id",
         },
-        options: { sort: { created_at: 'desc' } }
+        options: { sort: { created_at: "desc" } },
       });
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
-    }else{
+      return res.status(404).json({ error: "Post not found" });
+    } else {
       return res.status(200).json(post);
     }
-    
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -133,8 +148,8 @@ const pushCommentsIntoPostById = async (req, res) => {
   const { userId, postId } = req.params;
   const user_id = userId;
   const post_id = postId;
-  const {content} = req.body;
-  const activity_type = 'post-comment';
+  const { content } = req.body;
+  const activity_type = "post-comment";
   try {
     const newComment = new home.postComments({
       user_id,
@@ -143,83 +158,80 @@ const pushCommentsIntoPostById = async (req, res) => {
     await userSchema.userActivitySchema.create({
       user_id,
       activity_type,
-      post_id
-    })
+      post_id,
+    });
     const savedComment = await newComment.save();
     const post = await home.postSchema.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: 'post not found' });
-    }else{
-      post.comments.push(savedComment._id); 
+      return res.status(404).json({ message: "post not found" });
+    } else {
+      post.comments.push(savedComment._id);
       const updatedpost = await post.save();
       return res.status(200).json(updatedpost);
     }
-   
-  }catch (err){
+  } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const pushLikesIntoPostById = async (req, res) => {
   console.log(req.body);
-  const { userId, postId} = req.params;
+  const { userId, postId } = req.params;
   const user_id = userId;
   const post_id = postId;
-  const activity_type = 'liked-post';
+  const activity_type = "liked-post";
   try {
     const newLikes = new home.postLikes({
       user_id,
     });
-    
+
     const savedLikes = await newLikes.save();
     const post = await home.postSchema.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: 'post not found' });
-    }else{
+      return res.status(404).json({ message: "post not found" });
+    } else {
       post.likes.push(savedLikes._id);
       const pushedLikes = await post.save();
       await userSchema.userActivitySchema.create({
         user_id,
         activity_type,
-        post_id
-      })
+        post_id,
+      });
       return res.status(200).json(pushedLikes);
     }
-   
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const getUserPostData = async (req, res) => {
-  const {userId} = req.params;
+  const { userId } = req.params;
   try {
     const post = await home.postSchema.findOne({ user: userId });
     if (!post) {
-      res.status(404).json({ message: 'Post not found' });
-    }else{
+      res.status(404).json({ message: "Post not found" });
+    } else {
       return res.status(200).json(post);
     }
-    
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const updatePostById = async (req, res) => {
-  const { description, images, is_Public, bgms, text_style} = req.body;
-  const {userId, postId} = req.params;
-  const user_id =userId;
-  const post = await home.postSchema.findById(postId).populate('user_id');
+  const { description, images, is_Public, bgms, text_style } = req.body;
+  const { userId, postId } = req.params;
+  const user_id = userId;
+  const post = await home.postSchema.findById(postId).populate("user_id");
   if (!post) {
-    return res.status(404).json({ message: 'post not found' });
+    return res.status(404).json({ message: "post not found" });
   } else if (post.user._id.toString() !== userId) {
     return res
       .status(403)
-      .json({ message: 'You are not authorized to update this post' });
+      .json({ message: "You are not authorized to update this post" });
   } else {
     try {
       const updatedpost = await post.postSchema.findByIdAndUpdate(
@@ -230,66 +242,74 @@ const updatePostById = async (req, res) => {
           images,
           is_Public,
           bgms,
-          text_style
+          text_style,
         },
         { new: true }
       );
       return res.status(200).json(updatedpost);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 };
 
+const searchPodcasts = async (req, res) => {
+  const { term } = req.params;
+  const query = new RegExp(term, "i");
+  try {
+    const podcast = await Podcast.podcastSchema
+      .find({ $or: [{ title: query }, { description: query }] })
+      .populate("user_id")
+      .populate("episode")
+      .exec();
+    if (!podcast) {
+      return res.status(404).json({ message: "No search result found!!" });
+    }
+    return res.status(200).json(podcast);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+const searchPost = async (req, res) => {
+  const { term } = req.params;
+  const query = new RegExp(term, "i");
+  try {
+    const podcast = await home.postSchema
+      .find({ $or: [{ description: query }] })
+      .populate("user_id")
+      .exec();
+    if (!podcast) {
+      return res.status(404).json({ message: "No search result found!!" });
+    }
+    return res.status(200).json(podcast);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-const searchPodcasts = async (req, res) =>{
-  const {term} = req.params; 
-  const query = new RegExp(term, 'i');
- try{ 
-  const podcast = await Podcast.podcastSchema.find({ $or : [{title : query}, { description: query }]}).populate('user_id').populate('episode').exec();
-  if(!podcast){
-    return res.status(404).json({message : "No search result found!!"})
-  }
-  return res.status(200).json(podcast);
- } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Internal server error' });
+const searchChatrooms = async (req, res) => {
+  const { term } = req.params;
+  console.log(term);
+  const query = new RegExp(term, "i");
+  try {
+    const podcast = await Chatroom.find({ $or: [{ chatTopic: query }] })
+      .populate("ownerId")
+      .exec();
+    if (!podcast) {
+      return res.status(404).json({ message: "No search result found!!" });
     }
-}
-const searchPost = async (req, res) =>{
-  const {term} = req.params; 
-  const query = new RegExp(term, 'i');
- try{ 
-  const podcast = await home.postSchema.find({ $or : [{ description: query }]}).populate('user_id').exec();
-  if(!podcast){
-    return res.status(404).json({message : "No search result found!!"})
+    return res.status(200).json(podcast);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
   }
-  return res.status(200).json(podcast);
- } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-}
-
-const searchChatrooms = async (req, res) =>{
-  const {term} = req.params; 
-  console.log(term)
-  const query = new RegExp(term, 'i');
- try{ 
-  const podcast = await Chatroom.find({ $or : [{ chatTopic: query }]}).populate('ownerId').exec();
-  if(!podcast){
-    return res.status(404).json({message : "No search result found!!"})
-  }
-  return res.status(200).json(podcast);
- } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-}
+};
 
 // const searchAuthors = async (req, res) => {
-//   const {term} = req.params; 
+//   const {term} = req.params;
 //   console.log(term)
 //   const query = new RegExp(term, 'i');
 //   try{
@@ -310,60 +330,83 @@ const searchChatrooms = async (req, res) =>{
 // }
 
 const searchAuthors = async (req, res) => {
-  const {term} = req.params; 
-  console.log(term)
+  const { term } = req.params;
+  console.log(term);
   // const query = new RegExp(term, 'i');
-  try{
+  try {
     const authors = await Podcast.podcastSchema.aggregate([
       {
         $lookup: {
           from: "users",
           localField: "user_id",
           foreignField: "_id",
-          as: "author"
-        }
+          as: "author",
+        },
       },
       {
-        $unwind: "$author"
+        $unwind: "$author",
       },
       {
         $match: {
-          $or: [
-            { "author.user_name": { $regex: term, $options: "i" } }
-          ]
-        }
+          $or: [{ "author.user_name": { $regex: term, $options: "i" } }],
+        },
       },
       {
         $group: {
           _id: "$user_id",
           author: { $addToSet: "$author" },
-        }
-      }
-    ])
-    if(!authors){
+        },
+      },
+    ]);
+    if (!authors) {
       return res.status(500).json("No search result found!!");
     }
     return res.status(202).json(authors);
-  }catch(err){
+  } catch (err) {
     console.log(err);
     return res.status(400).json("Internal server error");
   }
-}
+};
 
 const podcastsOfTheDay = async (req, res) => {
-    try{
-      const podcasts = await Podcast.podcastSchema.find().sort({'likes.length': -1}).populate('episode').limit(1)
-      .populate({ path: 'user_id', select: 'user_name user_email user_role user_profile_pic' });
-      if(!podcasts){
-        return res.status(500).json({ message: 'OOPs! something went wrong' });
-      }
+  try {
+    const podcasts = await Podcast.podcastSchema
+      .find()
+      .sort({ "likes.length": -1 })
+      .limit(1)
+      .populate('user_id')
+      .populate({
+        path:'episode',
+        populate: {
+          path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+        },
+      })
+      .populate('likes')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic'
+        },
+        options: { sort: { created_at: 'desc' } },
+      })
+      
 
-      return res.status(200).json(podcasts);
-    }catch(err){
-      console.error(err);
-      return res.status(500).json({ message: 'Internal server error' });
+    if (!podcasts) {
+      return res.status(500).json({ message: "OOPs! something went wrong" });
     }
-}
+
+    return res.status(200).json(podcasts);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 const unlikePostById = async (req, res) => {
   const { userId, postId } = req.params;
@@ -372,7 +415,7 @@ const unlikePostById = async (req, res) => {
     const post = await home.postSchema
       .findById(postId)
       .populate({
-        path: 'likes',
+        path: "likes",
         match: { user_id: userId },
       })
       .exec();
@@ -389,23 +432,20 @@ const unlikePostById = async (req, res) => {
           { new: true }
         );
         const unlike = await home.postLikes.findByIdAndDelete(likeId);
-        return res.status(200).json({message : "post unliked succesfully"});
+        return res.status(200).json({ message: "post unliked succesfully" });
       } else {
         return res
           .status(404)
-          .json({ message: 'User has not liked that post' });
+          .json({ message: "User has not liked that post" });
       }
     } else {
-      return res
-        .status(404)
-        .json({ message: 'User has not liked that post' });
+      return res.status(404).json({ message: "User has not liked that post" });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 module.exports = {
   createPost,
@@ -421,5 +461,5 @@ module.exports = {
   searchAuthors,
   podcastsOfTheDay,
   uploadPost,
-  unlikePostById
+  unlikePostById,
 };
