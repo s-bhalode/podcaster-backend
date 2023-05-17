@@ -80,6 +80,9 @@ const episodeSchema = mongoose.model(
     description: {
       type: String,
     },
+    bgms: {
+      type: String,
+    },
     audioFile: {
       type: String,
     },
