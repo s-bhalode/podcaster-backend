@@ -382,8 +382,10 @@ const podcastsOfTheDay = async (req, res) => {
     const podcasts = await Podcast.podcastSchema
       .find()
       .sort({ 'likes.length': -1 })
+      .limit(1)
+      .populate('user_id')
       .populate({
-        path: 'episode',
+        path:'episode',
         populate: {
           path: 'comments',
           populate: {
@@ -393,11 +395,16 @@ const podcastsOfTheDay = async (req, res) => {
           options: { sort: { created_at: 'desc' } },
         },
       })
-      .limit(1)
+      .populate('likes')
       .populate({
-        path: 'user_id',
-        select: 'user_name user_email user_role user_profile_pic',
+        path: 'comments',
+        populate: {
+          path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic'
+        },
+        options: { sort: { created_at: 'desc' } },
       });
+
     if (!podcasts) {
       return res.status(500).json({ message: 'OOPs! something went wrong' });
     }
