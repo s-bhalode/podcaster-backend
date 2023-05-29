@@ -177,6 +177,7 @@ const schedulePodcastSchema = mongoose.model(
     },
     schedule_time:{
        type:Date,
+       default: Date.now,
     },
     created_at: {
       type: Date,
