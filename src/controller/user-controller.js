@@ -17,8 +17,14 @@ const getUserbyId = async (req, res) => {
   try {
     const user = await userSchema.userSchema
       .findById(id)
-      .populate({ path: 'following', select: 'user_name user_email user_role user_profile_pic' })
-      .populate({ path: 'followers', select: 'user_name user_email user_role user_profile_pic' })
+      .populate({
+        path: 'following',
+        select: 'user_name user_email user_role user_profile_pic',
+      })
+      .populate({
+        path: 'followers',
+        select: 'user_name user_email user_role user_profile_pic',
+      })
       .populate({
         path: 'saved_history',
         populate: {
@@ -30,13 +36,12 @@ const getUserbyId = async (req, res) => {
         populate: {
           path: 'episode podcasts posts',
         },
-      }); 
-      
-      const podcasts = await Podcast.podcastSchema.find({ user_id: id });
-      const post = await home.postSchema.find({ user_id: id });
-      console.log(post);
-      return res.status(200).json({user,post,podcasts});
-      
+      });
+
+    const podcasts = await Podcast.podcastSchema.find({ user_id: id });
+    const post = await home.postSchema.find({ user_id: id });
+    console.log(post);
+    return res.status(200).json({ user, post, podcasts });
   } catch (err) {
     return res.status(404).json({ message: 'User not found' });
   }
@@ -346,88 +351,112 @@ const addToFavorites = async (req, res) => {
       .status(500)
       .json({ message: 'Error occurred while saving data to favorites' });
   }
-}
+};
 
 const podcastRecommendation = async (req, res) => {
-  try{
-    const {userId} = req.params;
+  try {
+    const { userId } = req.params;
     const user = await userSchema.userSchema.findById(userId);
     const userInterests = user.interests;
 
-    const recommPodcasts = await Podcast.podcastSchema.find({category: {$in: userInterests}})
-    .populate({
-      path:'episode',
-      populate: {
+    const recommPodcasts = await Podcast.podcastSchema
+      .find({ category: { $in: userInterests } })
+      .populate({
+        path: 'episode',
+        populate: {
+          path: 'comments',
+          populate: {
+            path: 'user_id',
+            select: 'user_name user_email user_role user_profile_pic',
+          },
+          options: { sort: { created_at: 'desc' } },
+        },
+      })
+      .populate({
+        path: 'user_id',
+        select: 'user_name user_email user_role user_profile_pic',
+      })
+      .populate({
         path: 'comments',
         populate: {
           path: 'user_id',
           select: 'user_name user_email user_role user_profile_pic',
         },
         options: { sort: { created_at: 'desc' } },
-      },
-    })
-    .populate({ path: 'user_id', select: 'user_name user_email user_role user_profile_pic' });
-    // console.log(recommPodcasts);
-    const sortedRecommPodcasts = recommPodcasts.sort((a, b) => b.likes.length - a.likes.length);
+      });
+    const sortedRecommPodcasts = recommPodcasts.sort(
+      (a, b) => b.likes.length - a.likes.length
+    );
 
     // return res.status(200).json(sortedRecommPodcasts.slice(0, 10));
     return res.status(200).json(sortedRecommPodcasts);
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Error occurred while recommending podcasts' });
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while recommending podcasts' });
   }
-}
+};
 
 const postRecommendation = async (req, res) => {
-  try{
-    const {userId} = req.params;
+  try {
+    const { userId } = req.params;
     const user = await userSchema.userSchema.findById(userId);
     const userInterests = user.interests;
 
-    const recommPosts = await home.postSchema.find({category: {$in: userInterests}})
-    .populate({ path: 'user_id', select: 'user_name user_email user_role user_profile_pic' })
-    .populate('likes')
-    .populate({
-      path: 'comments',
-      populate: {
+    const recommPosts = await home.postSchema
+      .find({ category: { $in: userInterests } })
+      .populate({
         path: 'user_id',
-      },
-      options: { sort: { created_at: 'desc' } },
-    });
+        select: 'user_name user_email user_role user_profile_pic',
+      })
+      .populate('likes')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'user_id',
+        },
+        options: { sort: { created_at: 'desc' } },
+      });
     console.log(recommPosts);
 
-    const sortedRecommPosts = recommPosts.sort((a, b) => b.likes.length - a.likes.length);
+    const sortedRecommPosts = recommPosts.sort(
+      (a, b) => b.likes.length - a.likes.length
+    );
 
     return res.status(200).json(sortedRecommPosts);
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Error occurred while recommending posts' });
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while recommending posts' });
   }
-}
+};
 
 const addUserInterest = async (req, res) => {
-  try{
-    const {userId} = req.params;
-    const {interest} = req.body;
+  try {
+    const { userId } = req.params;
+    const { interest } = req.body;
 
     const user = await userSchema.userSchema.findById(userId);
-    if(!user){
-      return res.status(500).json({ message: 'Error occurred while adding user interests' });
+    if (!user) {
+      return res
+        .status(500)
+        .json({ message: 'Error occurred while adding user interests' });
     }
-    interest.map(inter => {
+    interest.map((inter) => {
       user.interests.push(inter);
-    })
-    
+    });
+
     await user.save();
-    return res.status(200).json("Interests added successfully!");
-
-  }catch(err){
+    return res.status(200).json('Interests added successfully!');
+  } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: 'Error occurred while adding user interests' });
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while adding user interests' });
   }
-}
-
-
+};
 
 module.exports = {
   getallUsers,
@@ -442,5 +471,5 @@ module.exports = {
   removeFromFavorites,
   addUserInterest,
   podcastRecommendation,
-  postRecommendation
+  postRecommendation,
 };
