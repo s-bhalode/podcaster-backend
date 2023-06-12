@@ -95,7 +95,7 @@ const episodeSchema = mongoose.model(
     },
     size: {
       type: String,
-      required: true
+      // required: true
     },
     likes: [
       {
