@@ -110,8 +110,17 @@ const userSchema = mongoose.model(
         unique: true
       }]
     },
-    interests : []
-  })
+    interests : [],
+    user_downloads: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'episodes',
+    }],
+    user_played_history: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'episodes'
+    }]
+  }),
+
 );
 
 const userActivitySchema = mongoose.model(
