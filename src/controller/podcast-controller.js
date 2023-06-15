@@ -133,6 +133,7 @@ const getPodcastById = async (req, res) => {
         path: 'comments',
         populate: {
           path: 'user_id',
+          select: 'user_name user_email user_role user_profile_pic'
         },
         options: { sort: { created_at: 'desc' } },
       });

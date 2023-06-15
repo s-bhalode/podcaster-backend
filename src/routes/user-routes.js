@@ -52,7 +52,35 @@ router.get('/api/:userId/podcast-recommendations', userController.podcastRecomme
 // for qoutes recommendations
 router.get('/api/:userId/post-recommendations', userController.postRecommendation);
 
+// to get user collections
+router.get('/api/get-all-collection-name/:userId', userController.getAllCollectionName);
 
+// to get individual collection data
+router.get('/api/get/:collection_name/data/:userId', userController.getCollectionData);
+
+// to save item to userCollections send itemType as 'post' or 'podcast' or 'episode' and itemId
+router.post('/api/save-to-collections/:userId', userController.saveToCollections);
+
+// to remove item from userCollections send itemId 
+router.post('/api/remove-from-collections/:id', userController.removeFromCollections);
+
+// to get user played history
+router.get('/api/get-all-played-history/:userId', userController.getAllPlayedHistory);
+
+// to add episode to user_played_history
+router.post('/api/add-to-played-history/:userId', userController.addToPlayedHistory);
+
+// to remove episode from user_played_history
+router.post('/api/remove-from-played-history/:userId', userController.removeFromPlayedHistory);
+
+// to get download history
+router.get('/api/get-all-downloads/:userId', userController.getAllDownloads);
+
+// to add episode to downloads
+router.post('/api/add-to-downloads/:userId', userController.addToDownloads);
+
+// to remove episode from downloads
+router.post('/api/remove-from-downloads/:userId', userController.removeFromDownloads);
 
 
 
