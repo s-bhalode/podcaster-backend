@@ -278,7 +278,91 @@ const removeFromSaved = async (req, res) => {
       .json({ message: 'Error occurred while removing data from saved' });
   }
 };
+const saveToCollections = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const {itemType, itemId, collection_name} = req.body;
+    const user_id = userId;
+    if(itemType === 'post'){
+      const post_id = itemId;
+      const newCollection = await userSchema.userCollectionSchema({
+        user_id,
+        collection_name,
+        post_id
+      }).save();
+      if(newCollection){
+        return res.status(200).json({message: "Added to collection successfully!"})
+      }  
+    }else if(itemType === 'podcast'){
+      const podcast_id = itemId;
+      const newCollection = await userSchema.userCollectionSchema({
+        user_id,
+        collection_name,
+        podcast_id,
+      }).save();
+      if(newCollection){
+        return res.status(200).json({message: "Added to collection successfully!"})
+      } 
+    }else if(itemType === 'episode'){
+      const episode_id = itemId;
+      const newCollection = await userSchema.userCollectionSchema({
+        user_id,
+        collection_name,
+        episode_id,
+      }).save();
+      if(newCollection){
+        return res.status(200).json({message: "Added to collection successfully!"})
+      } 
+    }
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({message: 'Error occurred while saving to collections!'});
+  }
+}
+const removeFromCollections = async (req, res) => {
+  try{
+    const {id} = req.params;
+    userSchema.userCollectionSchema.findByIdAndDelete({_id: id}).then((result) => {
+      if(!result){
+        return res.status(404).json({message: 'Item not found'});
+      }
+    }).catch((err) => {
+      console.error(err);
+      return res
+        .status(500)
+        .json({ message: 'Error occurred while removing data from collections' });
+    })
 
+  }catch(err){
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while removing data from collections' });
+  }
+}
+const getAllCollectionName = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const collections = await userSchema.userCollectionSchema.find({user_id: userId}).distinct('collection_name');
+
+    return res.status(200).json(collections);
+  }catch(err){
+    console.log(err);
+    return res.status(422).json({message: 'Something went wrong!'});
+  }
+}
+const getCollectionData = async (req, res) => {
+  try{
+    const {collection_name, userId} = req.params;
+    // const collections = await userSchema.userCollectionSchema.find({user_id: userId});
+    const collections = (await userSchema.userCollectionSchema.find({user_id: userId, collection_name: collection_name}));
+
+    return res.status(200).json(collections);
+  }catch(err){
+    console.log(err);
+    return res.status(422).json({message: 'Something went wrong!'});
+  }
+}
 const removeFromFavorites = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -325,7 +409,6 @@ const removeFromFavorites = async (req, res) => {
       .json({ message: 'Error occurred while removing data from favorites' });
   }
 };
-
 const addToFavorites = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -352,7 +435,102 @@ const addToFavorites = async (req, res) => {
       .json({ message: 'Error occurred while saving data to favorites' });
   }
 };
+const getAllPlayedHistory = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const user = await userSchema.userSchema.findById(userId);
 
+    if(!user){
+      return res.status(404).json({message: 'user not found'})
+    }
+    return res.status(200).json(user.user_played_history);
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({message: 'Error while retrieving history'});
+  }
+}
+const addToPlayedHistory = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const {episodeId} = req.body;
+    const user = await userSchema.userSchema.findById(userId);
+
+    user.user_played_history.push(episodeId);
+    await user.save();
+    return res.status(200).json('Successfully played');
+  }catch(err){
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while playing' });
+  }
+}
+const removeFromPlayedHistory = async (req, res) => {
+  try{
+    const {userId} =  req.params;
+    const {episodeId} =  req.body;
+    const removed = await userSchema.userSchema.updateOne({'_id': userId}, {$pull: {'user_played_history' : episodeId}});
+    if(!removed){
+      return res
+      .status(422)
+      .json({ message: 'Error occurred while removing' });
+    }
+    return res.status(200).json('Removed successfully!');
+  }catch(err){
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while removing' });
+  }
+}
+const getAllDownloads = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const user = await userSchema.userSchema.findById(userId);
+
+    if(!user){
+      return res.status(404).json({message: 'user not found'})
+    }
+    return res.status(200).json(user.user_downloads);
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({message: 'Error while retrieving downloads'});
+  }
+}
+const addToDownloads = async (req, res) => {
+  try{
+    const {userId} = req.params;
+    const {episodeId} = req.body;
+    const user = await userSchema.userSchema.findById(userId);
+
+    user.user_downloads.push(episodeId);
+    await user.save();
+    return res.status(200).json('Successfully added downloads');
+  }catch(err){
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while playing' });
+  }
+}
+const removeFromDownloads = async (req, res) => {
+  try{
+    const {userId} =  req.params;
+    const {episodeId} =  req.body;
+    const removed = await userSchema.userSchema.updateOne({'_id': userId}, {$pull: {'user_downloads' : episodeId}});
+    if(!removed){
+      return res
+      .status(422)
+      .json({ message: 'Error occurred while removing' });
+    }
+    return res.status(200).json('Removed successfully!');
+  }catch(err){
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: 'Error occurred while removing' });
+  }
+}
 const podcastRecommendation = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -397,7 +575,6 @@ const podcastRecommendation = async (req, res) => {
       .json({ message: 'Error occurred while recommending podcasts' });
   }
 };
-
 const postRecommendation = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -432,7 +609,6 @@ const postRecommendation = async (req, res) => {
       .json({ message: 'Error occurred while recommending posts' });
   }
 };
-
 const addUserInterest = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -472,4 +648,14 @@ module.exports = {
   addUserInterest,
   podcastRecommendation,
   postRecommendation,
+  getAllCollectionName,
+  getCollectionData,
+  saveToCollections,
+  removeFromCollections,
+  getAllPlayedHistory,
+  addToPlayedHistory,
+  removeFromPlayedHistory,
+  getAllDownloads,
+  addToDownloads,
+  removeFromDownloads
 };

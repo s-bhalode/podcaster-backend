@@ -66,6 +66,7 @@ const userSchema = mongoose.model(
     },
     user_profile_pic: {
       type: String,
+      default: null
     },
     user_instagram_url: {
       type: String,
@@ -118,10 +119,37 @@ const userSchema = mongoose.model(
     user_played_history: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'episodes'
-    }]
+    }],
   }),
 
 );
+
+
+const userCollectionSchema = mongoose.model(
+  'userCollections', new mongoose.Schema({
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+      required:'true'
+    },
+    collection_name: {
+      type: String,
+      required: true
+    },
+    podcast_id:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'podcasts'
+    },
+    episode_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'episodes'
+    },
+    post_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'posts'
+    }
+  })
+)
 
 const userActivitySchema = mongoose.model(
   'userActivity',
@@ -174,4 +202,5 @@ const userActivitySchema = mongoose.model(
 module.exports = {
   userSchema,
   userActivitySchema,
+  userCollectionSchema
 };
