@@ -114,7 +114,7 @@ const getPodcastById = async (req, res) => {
     if (!podcast) {
       return res.status(404).json({ error: 'Podcast not found' });
     } else {
-      return res.status(200).json(podcast );
+      return res.status(200).json(podcast);
     }
   } catch (err) {
     console.error(err);
@@ -415,6 +415,13 @@ const getAllPodcastAuthors = async (req, res) => {
               {
                 $match: {
                   $expr: { $eq: ['$_id', '$$userId'] },
+                },
+              },
+              {
+                $project: {
+                  user_name: 1,
+                  user_email: 1,
+                  user_profile_pic: 1,
                 },
               },
             ],
