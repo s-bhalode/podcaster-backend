@@ -438,11 +438,16 @@ const addToFavorites = async (req, res) => {
 const getAllPlayedHistory = async (req, res) => {
   try{
     const {userId} = req.params;
-    const user = await userSchema.userSchema.findById(userId);
+    const user = await userSchema.userSchema
+      .findById(userId)
+      .populate({
+        path: 'user_played_history'
+      });
 
     if(!user){
       return res.status(404).json({message: 'user not found'})
     }
+    
     return res.status(200).json(user.user_played_history);
   }catch(err){
     console.log(err);
