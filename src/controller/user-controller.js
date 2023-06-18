@@ -440,6 +440,7 @@ const getAllPlayedHistory = async (req, res) => {
     const {userId} = req.params;
     const user = await userSchema.userSchema
       .findById(userId)
+      .select('user_played_history')
       .populate({
         path: 'user_played_history'
       });
@@ -448,7 +449,7 @@ const getAllPlayedHistory = async (req, res) => {
       return res.status(404).json({message: 'user not found'})
     }
     
-    return res.status(200).json(user.user_played_history);
+    return res.status(200).json(user);
   }catch(err){
     console.log(err);
     return res.status(500).json({message: 'Error while retrieving history'});
