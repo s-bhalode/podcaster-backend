@@ -43,6 +43,8 @@ router.get('/api/podcast-of-the-day', homeController.podcastsOfTheDay);
 // unlike post api
 router.post('/api/post/unlike/:postId/:userId',homeController.unlikePostById)
 
+// trending post
+router.get('/api/get-trending-posts', homeController.getTrendingPosts);
 
 
 module.exports = router; 

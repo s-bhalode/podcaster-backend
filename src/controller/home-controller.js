@@ -144,7 +144,6 @@ const getAllPost = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 const pushCommentsIntoPostById = async (req, res) => {
   console.log(req.body);
   const { userId, postId } = req.params;
@@ -180,7 +179,6 @@ const pushCommentsIntoPostById = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 const pushLikesIntoPostById = async (req, res) => {
   console.log(req.body);
   const { userId, postId } = req.params;
@@ -212,7 +210,6 @@ const pushLikesIntoPostById = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 const getUserPostData = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -227,7 +224,6 @@ const getUserPostData = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 const updatePostById = async (req, res) => {
   const { description, images, is_Public, bgms, text_style } = req.body;
   const { userId, postId } = req.params;
@@ -261,7 +257,6 @@ const updatePostById = async (req, res) => {
     }
   }
 };
-
 const searchPodcasts = async (req, res) => {
   const { term } = req.params;
   const query = new RegExp(term, 'i');
@@ -298,7 +293,6 @@ const searchPost = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 const searchChatrooms = async (req, res) => {
   const { term } = req.params;
   console.log(term);
@@ -316,7 +310,6 @@ const searchChatrooms = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 // const searchAuthors = async (req, res) => {
 //   const {term} = req.params;
 //   console.log(term)
@@ -376,7 +369,45 @@ const searchAuthors = async (req, res) => {
     return res.status(400).json('Internal server error');
   }
 };
-
+const getTrendingPosts = async (req, res) => {
+  try{
+    let posts = await home.postSchema
+      .aggregate([
+        {
+          $match: {
+            is_Public: true, 
+            $expr: {$gte: [{$size: '$likes'}, 2]}
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user_id',
+            foreignField: '_id',
+            as: 'user',
+          }
+        },
+        {
+          $project: {
+            likesCount: {$size: '$likes'},
+            '_id': 1, 
+            'description' : 1, 
+            'images' : 1, 
+            'text_style' : 1, 
+            'username' : {$arrayElemAt: ['$user.user_name', 0]}
+          }
+        }
+      ])
+      if(!posts){
+        return res.status(422).json("Something went wrong!");
+      }
+      posts.sort((a, b) => b.likesCount - a.likesCount);
+      return res.status(200).json(posts);
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({message: "Something went wrong!"});
+  }
+}
 const podcastsOfTheDay = async (req, res) => {
   try {
     const podcasts = await Podcast.podcastSchema
@@ -473,4 +504,5 @@ module.exports = {
   podcastsOfTheDay,
   uploadPost,
   unlikePostById,
+  getTrendingPosts
 };
