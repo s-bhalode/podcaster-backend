@@ -1,6 +1,25 @@
 const userSchema = require("../model/user-model");
 const bcrypt = require("bcrypt");
 const awsEmailNotification = require('../config/ses');
+const {OAuth2Client} = require('google-auth-library');
+const CLIENT_ID = '';
+
+const verifyToken = async (req, res) => {
+  const token = req.query.id_token;
+  const client = new OAuth2Client(CLIENT_ID);
+  verify = async () => {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID
+    })
+    // const payload = ticket.getPayload();
+    return ticket.getPayload();
+    // const userid = payload['sub'];
+  }
+  verify().catch(console.error);
+}
+
+
 
 const signUp = async (req, res) => {
   try {
