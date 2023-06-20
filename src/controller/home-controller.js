@@ -129,9 +129,9 @@ const getAllPost = async (req, res) => {
       .populate('likes')
       .populate({
         path: "comments",
-        populate: {
-          path: "user_id",
-        },
+        // populate: {
+        //   path: "user_id",
+        // },
         options: { sort: { created_at: 'desc' } },
       }).sort({ created_at: -1 });
     if (!post) {
@@ -283,6 +283,14 @@ const searchPost = async (req, res) => {
     const podcast = await home.postSchema
       .find({ $or: [{ description: query }] })
       .populate('user_id')
+      .populate('likes')
+      .populate({
+        path: "comments",
+        // populate: {
+        //   path: "user_id",
+        // },
+        options: { sort: { created_at: 'desc' } },
+      }).sort({ created_at: -1 })
       .exec();
     if (!podcast) {
       return res.status(404).json({ message: 'No search result found!!' });

@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const userSchema = mongoose.model(
   'user',
   new mongoose.Schema({
+    token: {
+      type: String
+    },
     socketId: {
       type: String
     },
