@@ -111,9 +111,9 @@ const getAllPost = async (req, res) => {
       .populate('likes')
       .populate({
         path: "comments",
-        // populate: {
-        //   path: "user_id",
-        // },
+        populate: {
+          path: "user_id",
+        },
         options: { sort: { created_at: 'desc' } },
       })
       .sort({ created_at: -1 });
@@ -264,9 +264,9 @@ const searchPost = async (req, res) => {
       .populate('likes')
       .populate({
         path: "comments",
-        // populate: {
-        //   path: "user_id",
-        // },
+        populate: {
+          path: "user_id",
+        },
         options: { sort: { created_at: 'desc' } },
       }).sort({ created_at: -1 })
       .exec();
