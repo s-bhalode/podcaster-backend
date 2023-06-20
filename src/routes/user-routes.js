@@ -7,7 +7,8 @@ const { auth } = require('firebase-admin');
 
 // Authentication routes
 router.post('/signup', authController.signUp);
-router.post('/signin', authController.signIn);
+// router.post('/signin', authController.signIn);
+router.post('/signin', authController.login);
 
 // to trigger email for changing password
 router.post('/api/forgot-password', authController.forgotPassword);
