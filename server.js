@@ -9,6 +9,7 @@ const homerouter = require('./src/routes/home-routes');
 const Scheduler = require('./src/controller/schedule-controller')
 const chatRoomRouter = require('./src/routes/chat-room-routes');
 const cron = require('node-cron');
+const FCM = require('fcm-node');
 
 // const ACTIONS = require('./src/action');
 dotenv.config({path: './.env'});
