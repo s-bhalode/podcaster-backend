@@ -2,6 +2,9 @@ const userSchema = require('../model/user-model');
 const home = require('../model/home-model');
 const Podcast = require('../model/podcast-model');
 const Chatroom = require('../model/chat-room-model');
+const FCM = require('fcm-node');
+const dotenv = require('dotenv');
+dotenv.config({path: '../.env'});
 
 const createPost = async (req, res) => {
   const { description, images, is_Public, bgms, created_at, text_style, schedule_time } = req.body;
@@ -127,6 +130,8 @@ const getAllPost = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
 const pushCommentsIntoPostById = async (req, res) => {
   console.log(req.body);
   const { userId, postId } = req.params;
@@ -137,6 +142,14 @@ const pushCommentsIntoPostById = async (req, res) => {
   const activity_type = 'post-comment';
 
   try {
+    const post = await home.postSchema.findById(postId);
+
+    const device_id = await userSchema.userSchema.findById(post.user_id).then((owner) => {
+      if(owner){
+        return owner.device_token;
+      }
+    })
+    
     const newComment = new home.postComments({
       user_id,
       content,
@@ -147,12 +160,18 @@ const pushCommentsIntoPostById = async (req, res) => {
       post_id,
     });
     const savedComment = await newComment.save();
-    const post = await home.postSchema.findById(postId);
     if (!post) {
       return res.status(404).json({ message: 'post not found' });
     } else {
       post.comments.push(savedComment._id);
       const updatedpost = await post.save();
+      await userSchema.userSchema.findById(userId).then((user) => {
+        if(user){
+          const userName = user.user_name;
+          const message = `${userName} commented on your post`;
+          sendNotification(device_id, message);
+        }
+      })
       return res.status(200).json(updatedpost);
     }
   } catch (err) {
@@ -475,6 +494,28 @@ const unlikePostById = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+const sendNotification = async (device_id, message) => {
+  try{
+      let fcm = new FCM(process.env.FCM_SERVER_KEY);
+      let pushNotification = {
+          to: device_id,
+          content_available: true,
+          mutable_content: true,
+          notification: {
+              body : message
+          }
+      }
+      fcm.send(pushNotification, (err, res) => {
+          if(err){
+              console.log('erorr ', err);
+          }
+      })
+  }catch(err){
+      console.log(err);
+  }
+}
+
 
 module.exports = {
   createPost,

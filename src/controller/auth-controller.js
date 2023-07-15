@@ -25,7 +25,7 @@ const verifyToken = async (client, token) => {
 
 const login = async (req, res) => {
   try {
-    const { user_email, user_password } = req.body;
+    const { user_email, user_password, device_token } = req.body;
     let token = req.query.id_token;
 
     if(!user_password){
@@ -44,6 +44,11 @@ const login = async (req, res) => {
               user_email : user.email,
               user_password: bcrypt.hash(user.at_hash, 7)
             }])
+            userSchema.userSchema.findOneAndUpdate({user_email:user.user_email}, {device_token: device_token}, (err, updatedUser)=>{
+              if(err){
+                throw err;
+              }
+            })
             userSchema.userSchema.find({user_email: user.user_email}).toArray((error, resu) => {
               if(error){
                 throw error;

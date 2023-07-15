@@ -9,6 +9,9 @@ const userSchema = mongoose.model(
     socketId: {
       type: String
     },
+    device_token: {
+      type: String
+    },
     meetingId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "chatRoom"
