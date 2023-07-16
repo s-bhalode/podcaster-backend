@@ -7,7 +7,6 @@ dotenv.config({path: '../../.env'});
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const keys = require('../../google_app_credentials.json');
 
 
 
@@ -108,6 +107,7 @@ const signUp = async (req, res) => {
       user_instagram_url,
       user_facebook_url,
       user_twitter_url,
+      device_token
     } = req.body;
 
     // if(!user_email || !user_password){
@@ -132,6 +132,7 @@ const signUp = async (req, res) => {
       user_instagram_url,
       user_facebook_url,
       user_twitter_url,
+      device_token
     });
     bcrypt.hash(user_password, saltRounds, async (err, hash) => {
       if (err) {

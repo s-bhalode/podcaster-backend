@@ -192,6 +192,13 @@ const pushLikesIntoPostById = async (req, res) => {
 
     const savedLikes = await newLikes.save();
     const post = await home.postSchema.findById(postId);
+
+    const device_id = await userSchema.userSchema.findById(post.user_id).then((owner) => {
+      if(owner){
+        return owner.device_token;
+      }
+    })
+    
     if (!post) {
       return res.status(404).json({ message: 'post not found' });
     } else {
@@ -202,6 +209,13 @@ const pushLikesIntoPostById = async (req, res) => {
         activity_type,
         post_id,
       });
+      await userSchema.userSchema.findById(userId).then((user) => {
+        if(user){
+          const userName = user.user_name;
+          const message = `${userName} liked your post`;
+          sendNotification(device_id, message);
+        }
+      })
       return res.status(200).json(pushedLikes);
     }
   } catch (err) {
