@@ -9,7 +9,9 @@ const homerouter = require('./src/routes/home-routes');
 const Scheduler = require('./src/controller/schedule-controller')
 const chatRoomRouter = require('./src/routes/chat-room-routes');
 const cron = require('node-cron');
-
+const FCM = require('fcm-node');
+const admin = require("firebase-admin");
+const serviceAccount = require("./onpods-firebase-adminsdk.json");
 
 dotenv.config({path: './.env'});
 const PORT = process.env.PORT;
@@ -17,6 +19,9 @@ require('./src/config/db-connection');
 const app = express();
 const server = require('http').createServer(app);
 
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
 
 const {initMeetingServer} = require('./meeting-server');
 initMeetingServer(server);
