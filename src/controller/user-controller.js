@@ -157,12 +157,15 @@ const pushFollowerCount = async (req, res) => {
     const { userId, followerId } = req.params;
     const user = await userSchema.userSchema.findById(userId);
     const currentUser = await userSchema.userSchema.findById(followerId);
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     if (!currentUser) {
       return res.status(404).json({ message: 'Unauthorized followerId' });
     }
+    const device_id = user.device_token;
+    const follower_name = currentUser.user_name;
     if (user.followers.includes(followerId)) {
       return res.status(400).json({ message: 'Already following this user' });
     }
@@ -171,14 +174,14 @@ const pushFollowerCount = async (req, res) => {
 
     currentUser.following.push(userId);
     await currentUser.save();
-
+    const message = `${follower_name} started following you`;
+    sendNotification(device_id, message);
     return res.status(200).json({ user, currentUser });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 const unfollowUser = async (req, res) => {
   try {
     const { userId, unfollowerId } = req.params;
@@ -205,7 +208,6 @@ const unfollowUser = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 const saveContent = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -639,6 +641,26 @@ const addUserInterest = async (req, res) => {
       .json({ message: 'Error occurred while adding user interests' });
   }
 };
+const sendNotification = async (device_id, message) => {
+  try{
+      let fcm = new FCM(process.env.FCM_SERVER_KEY);
+      let pushNotification = {
+          to: device_id,
+          content_available: true,
+          mutable_content: true,
+          notification: {
+              body : message
+          }
+      }
+      fcm.send(pushNotification, (err, res) => {
+          if(err){
+              console.log('erorr ', err);
+          }
+      })
+  }catch(err){
+      console.log(err);
+  }
+}
 
 module.exports = {
   getallUsers,

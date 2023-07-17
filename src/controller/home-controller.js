@@ -487,6 +487,12 @@ const unlikePostById = async (req, res) => {
         match: { user_id: userId },
       })
       .exec();
+      const device_id = await userSchema.userSchema.findById(post.user_id).then((owner) => {
+        if(owner){
+          return owner.device_token;
+        }
+      })
+      
     // console.log(podcast.likes[0]._id);
     if (post.likes.length !== 0) {
       const likeId = post.likes[0]._id;
@@ -496,6 +502,13 @@ const unlikePostById = async (req, res) => {
       if (index !== -1) {
         await home.postSchema.findByIdAndUpdate(postId, { $pull: { likes: likeId } }, { new: true });
         const unlike = await home.postLikes.findByIdAndDelete(likeId);
+        await userSchema.userSchema.findById(userId).then((user) => {
+          if(user){
+            const userName = user.user_name;
+            const message = `${userName} unliked your post`;
+            sendNotification(device_id, message);
+          }
+        })
         return res.status(200).json({ message: 'post unliked succesfully' });
       } else {
         return res.status(404).json({ message: 'User has not liked that post' });

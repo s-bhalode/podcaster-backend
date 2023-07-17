@@ -1,6 +1,7 @@
 const userSchema = require("../model/user-model");
 const bcrypt = require("bcrypt");
-const awsEmailNotification = require('../config/ses');
+const awsEmailNotification = require('../services/ses');
+const {generateOTP} = require('../services/otp');
 const {OAuth2Client} = require('google-auth-library');
 const dotenv = require('dotenv');
 dotenv.config({path: '../../.env'});
@@ -21,7 +22,24 @@ const verifyToken = async (client, token) => {
     // const userid = payload['sub'];
     // verify().catch(console.error);
 }
-
+const verifyEmail = async (req, res) => {
+  try{
+    const {user_email, otp} = req.body;
+    const user = await userSchema.userSchema.findOne({user_email});
+    if(!user){
+      return res.status(400).json({message: 'User not found'});
+    }
+    if(user && user.otp != otp){
+      return res.status(400).json({message:'Invalid OTP'});
+    }
+    const updatedUser = await userSchema.userSchema.findByIdAndUpdate(user._id, {
+      $set:{verified : true}
+    })
+    return res.status(200).json({message: 'Email verified successfully', user: updatedUser});
+  }catch(err){
+    return res.status(400).json({ message: "Failed to verify" });
+  }
+}
 const login = async (req, res) => {
   try {
     const { user_email, user_password, device_token } = req.body;
@@ -140,17 +158,21 @@ const signUp = async (req, res) => {
       }
       newUser.user_password = hash;
       newUser.token = jwt.sign({user: newUser}, process.env.JWT_SECRET_KEY);
+      const generatedOtp = generateOTP();
+      newUser.otp = generatedOtp;
       const savedUserRes = await newUser.save();
       if (savedUserRes) {
+        awsEmailNotification.sendOTPviaEmail(user_email, generatedOtp);
         return res
           .status(200)
           .json({
-            message: "User registered successfully!",
+            message: "Registered successfully! Check your email",
             user: savedUserRes
           });
       }
     });
   } catch (err) {
+    console.log(err);
     return res.status(400).json({ message: "Error while registering user" });
   }
 };

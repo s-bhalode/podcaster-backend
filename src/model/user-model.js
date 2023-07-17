@@ -61,6 +61,10 @@ const userSchema = mongoose.model(
       type: Boolean,
       default: true,
     },
+    otp:{
+      type:String,
+      required:true
+    },
     user_gender: {
       type: String,
     },
@@ -82,6 +86,10 @@ const userSchema = mongoose.model(
     },
     user_twitter_url: {
       type: String,
+    },
+    verified : {
+      type: Boolean,
+      default: false
     },
     saved_history: {
       posts: [{
@@ -126,8 +134,9 @@ const userSchema = mongoose.model(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'episodes'
     }],
+    
   }),
-
+  
 );
 
 
