@@ -48,9 +48,44 @@ const sendForgotPasswordEmail = (user_email, userId, origin) => {
     }
 
 }
+const sendOTPviaEmail = (user_email, otp) => {
+    
+    const email = process.env.FROM_EMAIL;
+    
+    try{
+        const params = {
+            Source: email,
+            Destination: {
+                ToAddresses: [user_email]
+            },
+            Message: {
+                Subject: {
+                    Charset: "UTF-8",
+                    Data: `One-Time Password`
+                },
+                Body: {
+                    Html: {
+                        Charset : "UTF-8",
+                        Data : `<h3>Here is your required OTP: ${otp}</h3> `
+                    }
+                }
+            }
+        }
+        const sentEmail = SES.sendEmail(params).promise();
+        sentEmail.then((data) => {
+            console.log(data);
+        }).catch((err) => {
+            console.log(err);
+        })
+    }catch(err){
+        console.log(err);
+    }
+
+}
 
 
 
 module.exports = {
-    sendForgotPasswordEmail
+    sendForgotPasswordEmail,
+    sendOTPviaEmail
 }

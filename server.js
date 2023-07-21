@@ -12,10 +12,13 @@ const cron = require('node-cron');
 const FCM = require('fcm-node');
 const admin = require("firebase-admin");
 const serviceAccount = require("./onpods-firebase-adminsdk.json");
+const awsEmailNotification = require('./src/services/ses');
+
+// awsEmailNotification.sendOTPviaEmail('sbhalode20@gmail.com', 123456)
 
 dotenv.config({path: './.env'});
 const PORT = process.env.PORT;
-require('./src/config/db-connection');
+require('./src/services/db-connection');
 const app = express();
 const server = require('http').createServer(app);
 
