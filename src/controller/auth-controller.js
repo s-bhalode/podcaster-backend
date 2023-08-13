@@ -251,5 +251,6 @@ module.exports = {
   signUp,
   forgotPassword,
   changePassword,
-  login
+  login,
+  verifyEmail
 };
