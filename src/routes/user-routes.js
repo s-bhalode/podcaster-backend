@@ -15,6 +15,8 @@ router.post('/api/forgot-password', authController.forgotPassword);
 // to change password
 router.post('/api/change-password/:userId', authController.changePassword);
 
+// to verify email
+router.post('/api/verify-email/:userId', authController.verifyEmail);
 
 
 // user route
