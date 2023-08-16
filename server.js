@@ -14,6 +14,7 @@ const admin = require("firebase-admin");
 const serviceAccount = require("./onpods-firebase-adminsdk.json");
 const awsEmailNotification = require('./src/services/ses');
 
+
 // awsEmailNotification.sendOTPviaEmail('sbhalode20@gmail.com', 123456)
 
 dotenv.config({path: './.env'});
