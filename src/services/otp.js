@@ -4,6 +4,7 @@ OTP_LENGTH = 6
 OTP_CONFIG = {
     upperCaseAlphabets: false,
     specialChars: false,
+    lowerCaseAlphabets: false
 }
 module.exports.generateOTP = () => {
     const OTP = otpGenerator.generate(OTP_LENGTH, OTP_CONFIG);
