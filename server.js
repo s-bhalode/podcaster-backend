@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const userRouter = require('./src/routes/user-routes');
 const podcastRouter = require('./src/routes/podcast-routes');
 const homerouter = require('./src/routes/home-routes');
+const adminrouter = require('./src/routes/admin-routes');
 const Scheduler = require('./src/controller/schedule-controller')
 const chatRoomRouter = require('./src/routes/chat-room-routes');
 const cron = require('node-cron');
@@ -59,6 +60,7 @@ app.use(userRouter);
 app.use(podcastRouter);
 app.use(chatRoomRouter);
 app.use(homerouter);
+app.use(adminrouter);
 
 app.get('/', (req, res) => {
     return res.status(202).json("Hello Podcasters!");
