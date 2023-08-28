@@ -10,6 +10,10 @@ const postSchema = mongoose.model(
     description: {
       type: String,
     },
+    reportCount: {
+      type: Number,
+      default: 0
+    },
     bgms: {
       type: String,
     },
@@ -45,7 +49,6 @@ const postSchema = mongoose.model(
         ref: 'post-likes',
       },
     ],
-
     comments: [
       {
         type: mongoose.Schema.Types.ObjectId,
