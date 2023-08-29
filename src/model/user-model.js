@@ -39,6 +39,7 @@ const userSchema = mongoose.model(
     },
     user_role: {
       type: String,
+      default:"user",
       required: true,
     },
     registered_date: {
@@ -63,7 +64,7 @@ const userSchema = mongoose.model(
     },
     otp:{
       type:String,
-      required:true
+      // required:true
     },
     user_gender: {
       type: String,
