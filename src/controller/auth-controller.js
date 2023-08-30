@@ -45,7 +45,7 @@ const login = async (req, res) => {
     const { user_email, user_password, device_token } = req.body;
     let token = req.query.id_token;
 
-    if(!user_password){
+    if(!user_password || !user_email){
       const client = new OAuth2Client(process.env.CLIENT_ID);
       let user = await verifyToken(client, token).catch((err) => {
         console.log('errorrrr', err);

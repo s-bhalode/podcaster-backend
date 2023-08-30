@@ -61,7 +61,7 @@ const getAllMeetingUsers = (req, res, next) => {
 // }
 
 const chatRoomIndex = async (req, res) => {
-    const rooms = await chatRoomService.getAllRooms(['public']);
+    const rooms = await chatRoomService.getAllRooms(req, ['public']);
     
     return res.json(rooms);
 }
