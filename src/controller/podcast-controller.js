@@ -125,10 +125,11 @@ const getPodcastById = async (req, res) => {
 const getAllPodcast = async (req, res) => {
   try {
     // Find all the podcast ( get API for taking all podcast)
-    const podcast = await Podcast.podcastSchema
-      .find()
-      .populate('user_id')
-      .populate({
+    let page = Number(req.query.page) || 1;
+    let limit = Number(req.query.limit) || 10;
+
+    let skip = (page-1)*limit;
+    const podcast = await Podcast.podcastSchema.find().populate({
         path: 'episode',
         populate: {
           path: 'comments',
@@ -148,13 +149,12 @@ const getAllPodcast = async (req, res) => {
         },
         options: { sort: { created_at: 'desc' } },
       })
-      .sort({ created_at: -1 })
-      .limit(20);
+      .sort({ created_at: -1 }).skip(skip).limit(limit);
     if (!podcast) {
       return res.status(404).json({ error: 'Podcast not found' });
-    } else {
-      return res.status(200).json(podcast);
     }
+
+    return res.status(200).json({page:page, count: podcast.length, podcasts: podcast });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
