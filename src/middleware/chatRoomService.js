@@ -119,16 +119,41 @@ const getUserBySocketId = async (params, callback) => {
 //     return room;
 // }
 
-const getAllRooms = async (types) => {
-    const rooms = await chatRoomSchema.find({roomType: {$in: types}})
+const getAllRooms = async (req, types) => {
+
+    try{
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page-1)*limit;
+
+
+        const rooms = await chatRoomSchema
+        .find({roomType: {$in: types}})
         .populate({
             path: 'speakers',
             select: '_id user_name is_public user_profile_pic user_email'
         })
         .populate('hostId')
+        .skip(skip)
+        .limit(limit)
         .exec();
 
-    return rooms;
+        if(rooms){
+            const roomInfo = rooms.map(room => ({
+                _id: room._id,
+                chatTopic: room.chatTopic,
+                participantCount: room.participants.length,
+                speakers: room.speakers[0],
+                hostId: room.hostId._id,
+                hostName: room.hostName,
+                startTime: room.startTime
+            }))
+            return roomInfo;
+        }    
+        return rooms;
+    }catch(err){
+
+    }
 }
 
 const getRoom = async (roomId) => {
