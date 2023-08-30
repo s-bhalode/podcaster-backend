@@ -9,7 +9,7 @@ router.post('/api/create-podcast/:userId', podcastController.createPodcast);
 router.post('/api/podcasts/create-episode/:podcastId/:userId',podcastController.createEpisodes)
 
 //Get All podcasts Data
-router.get('/api/podcasts', podcastController.getAllPodcast);
+router.get('/api/podcasts/get-all-podcast', podcastController.getAllPodcast);
 
 //Get All podcast details by Category (filtered)
 router.get('/api/podcasts/:category',podcastController.getPodcastbyCategory);
