@@ -540,6 +540,37 @@ const sendNotification = async (device_id, message) => {
       })
   }catch(err){
       console.log(err);
+      return res.status(422).json(err.message);
+  }
+}
+
+const getPostsByCategory = async (req, res) => {
+  try{
+    const {category} = req.params;
+    const postData = await home.postSchema.find({category: category})
+    .populate({
+      path: 'user_id',
+      select: 'user_name user_email user_role user_profile_pic'
+    })
+    .populate('likes')
+    .populate({
+      path: 'comments',
+      populate: {
+        path: 'user_id',
+        select: 'user_name user_email user_role user_profile_pic'
+      },
+      options: {sort: {created_at: 'desc'}},
+    });
+
+    if(!postData){
+      return res.status(404).json({error: 'Posts not found!'});
+    }else{
+      return res.status(200).json(postData);
+    }
+
+  }catch(err){
+    console.log(err);
+    return res.status(422).json(err.message);
   }
 }
 
@@ -560,4 +591,5 @@ module.exports = {
   uploadPost,
   unlikePostById,
   getTrendingPosts,
+  getPostsByCategory
 };
