@@ -46,5 +46,7 @@ router.post('/api/post/unlike/:postId/:userId',homeController.unlikePostById)
 // trending post
 router.get('/api/get-trending-posts', homeController.getTrendingPosts);
 
+// get post by category
+router.get('/api/posts/:category', homeController.getPostsByCategory);
 
 module.exports = router; 

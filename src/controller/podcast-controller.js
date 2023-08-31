@@ -168,7 +168,10 @@ const getPodcastbyCategory = async (req, res) => {
       .find({
         category: category,
       })
-      .populate('user_id')
+      .populate({
+        path: 'user_id',
+        select: 'user_name user_email user_role user_profile_pic'
+      })
       .populate({
         path: 'episode',
         populate: {
